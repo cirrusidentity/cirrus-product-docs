@@ -10,7 +10,7 @@ export default defineConfig({
       dark: "#08385f", // pressed states, darker accents
     },
     fonts: {
-      sans: "'Figtree', sans-serif", // body text, headings
+      sans: "Figtree, sans-serif", // body text, headings
     },
   },
   logo: "./assets/logo.png",
