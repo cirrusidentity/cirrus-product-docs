@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: gyamada619/build-docs@v1
+      - uses: gyamada619/build-docs@main
         with:
           output: docs
       - uses: actions/upload-pages-artifact@v3
