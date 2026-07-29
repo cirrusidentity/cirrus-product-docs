@@ -34,40 +34,44 @@ However, if your institution’s security policies require assignment, then sett
 
 ### Set Up Single Sign-On
 
-Next, select ‘Single Sign-On’ from the left menu, and then select the SAML option.
- 
-First, you will edit the Basic SAML Configuration.
-
-Enter the Identifier (Entity ID) and Reply URL (Assertions Consumer Service URL) as provided by your Implementation Lead, Save, and Close.
+:::steps
+1. Select ‘Single Sign-On’ from the left menu, and then select the SAML option.
+2. Edit the Basic SAML Configuration.
+3. Enter the Identifier (Entity ID) and Reply URL (Assertions Consumer Service URL) as provided by your Implementation Lead.
+:::
 
 ### Configure Claims
 
 Next, the attributes will be configured. Entra ID calls them claims. Entra ID also allows you to perform transformations to your attributes. Please refer to the list you created from the Authentication Profiles for Cirrus Bridge page to configure these attributes.
 
-First, navigate to the claims area.
-
-Use the attribute profile you built to configure your list of attributes. The general process for adding an attribute will look like the screens below.
-
-When you are done, the Attribute list will look something like the **following**. You may have additional attributes that you have added to the profile so it would differ in that way.
-
-Now, close this screen and return to the previous one.
+:::steps
+1. Navigate to the claims UI.
+2. Use the attribute profile you built to configure your list of attributes.
+:::
 
 ### Asserting MFA
 
 If you are using Entra ID MFA, then the Cirrus Bridge will automatically assert the REFEDS MFA authncontext to downstream service providers.
 
-If you are using another source for MFA such as Duo, you may need to manually assert MFA since Entra ID may not signal to the Bridge that MFA was performed for users. In that case, please add an additional attribute with the following Name and Value, and note that by doing so you are asserting that all users that use this application MFA performed MFA.
+If you are using another source for MFA, such as Duo, you may need to manually assert MFA since Entra ID may not signal to the Bridge that MFA was performed for users.
 
-Name: cirrus.rule.authnContext
+In this case, add an additional attribute with the following name and value, 
 
-Value: https://refeds.org/profile/mfa
+- **Name**: cirrus.rule.authnContext
+- **Value**: https://refeds.org/profile/mfa
+
+:::note
+By adding this attribute, you are asserting that all users that use this application have performed MFA.
+:::
 
 ### Signing Settings
 
-Next you will update the signing and encryption settings. First select the Edit icon.
+Entra ID signs both the SAML response & assertion. Some applications may only want one or the other signed. 
 
-Entra ID signs both the SAML response and assertion. Some applications only want one or the other signed. Our recommendation for the default application is to only sign the response. This configuration will match Shibboleth’s default behavior.
+Our recommendation for the default application is to only sign the response. This configuration will match Shibboleth’s default behavior.
 
 ### Encryption Settings (Optional)
 
-Customers moving from Shibboleth likely have a default policy to encrypt all assertions. To enable this, navigate to the “Token Encryption” side menu, import the certificate for the Cirrus Bridge, and then activate the certificate. It can take several minutes for Entra ID to start encrypting assertions.
+Customers moving from Shibboleth likely have a default policy to encrypt all assertions. 
+
+To enable this, navigate to the “Token Encryption” menu, import the certificate for the Cirrus Bridge, and then activate the certificate. It can take several minutes for Entra ID to start encrypting assertions.
