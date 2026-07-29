@@ -16,7 +16,7 @@ jobs:
         with:
           output: docs
       - name: Inject Google Analytics Code
-        run: node inject.js
+        run: node inject.cjs
       - uses: actions/upload-pages-artifact@v3
         with:
           path: docs
