@@ -16,25 +16,7 @@ jobs:
         with:
           output: docs
       - name: Inject Google Analytics Code
-        run: |
-            # 1. Define the directory containing your compiled HTML files
-            # Change "dist" to your specific output directory (e.g., public, out, _site)
-            BUILD_DIR="docs"
-
-            # 2. Check if the directory exists
-            if [ -d "$BUILD_DIR" ]; then
-              echo "Injecting tracking snippet into HTML files..."
-
-              # 3. Recursively find all HTML files and insert the snippet right after the <head> tag
-              find "$BUILD_DIR" -type f -name "*.html" | while read -r file; do
-                # Safely inject the content of google-analytics.html directly under <head>
-                sed -i '/<head>/r google-analytics.html' "$file"
-                sed -i '/<\/body>/i <script type="text/javascript" id="hs-script-loader" async defer src="\/\/://hs-scripts.com\/2120505.js"><\/script>' "$file"
-              done
-            else
-              echo "Error: Build directory $BUILD_DIR not found."
-              exit 1
-            fi
+        run: node inject.js
       - uses: actions/upload-pages-artifact@v3
         with:
           path: docs
