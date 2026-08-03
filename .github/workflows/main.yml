@@ -2,6 +2,8 @@ name: Deploy Docs
 on:
   push:
     branches: [main]
+  workflow_dispatch:
+    # Allows manual triggering from the GitHub Actions tab
 
 permissions:
   pages: write
