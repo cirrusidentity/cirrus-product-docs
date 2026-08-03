@@ -35,19 +35,36 @@ However, if your institution’s security policies require assignment, then sett
 ### Set Up Single Sign-On
 
 :::steps
-1. Select ‘Single Sign-On’ from the left menu, and then select the SAML option.
+1. Select ‘Single Sign-On’ from the left menu.
+   Choose the SAML option.
 2. Edit the Basic SAML Configuration.
-3. Enter the Identifier (Entity ID) and Reply URL (Assertions Consumer Service URL) as provided by your Implementation Lead.
+   Enter the Entity ID & Reply URL (ACS URL) provided by the Implementation Lead.
 :::
 
 ### Configure Claims
 
-Next, the attributes will be configured. Entra ID calls them claims. Entra ID also allows you to perform transformations to your attributes. Please refer to the list you created from the Authentication Profiles for Cirrus Bridge page to configure these attributes.
+Next, the attributes will be configured. Entra ID calls them claims. Entra ID also allows you to perform transformations to your attributes. 
 
-:::steps
-1. Navigate to the claims UI.
-2. Use the attribute profile you built to configure your list of attributes.
-:::
+### NameID Format & Value
+
+The default NameID Format is transient, which means the NameID value is generated as a unique value for this transaction. 
+
+Entra ID does not support transient NameIDs, so you will need to add a claim with a Cirrus rule with the following values to instruct the Bridge to send a transient NameID.
+
+**Name**: cirrus.nameIdFormat
+**Value**: urn:oasis:names:tc:SAML:2.0:nameid-format:transient
+
+### Default Profile: Research & Scholarship Attributes 
+
+To meet the REFEDS research & scholarship entity category requirements used by InCommon, you must configure the following attributes. We typically recommend you configure them on the default application.
+
+| Attribute (friendlyName) | OID | Equivalent Entra ID Attribute |
+|---|---|---|
+| Surname (sn) | urn:oid:2.5.4.4 | user.surname |
+| Given Name (givenName) | urn:oid:2.5.4.42 | user.givenname |
+| Display Name (displayName) | urn:oid:2.16.840.1.113730.3.1.241 | user.displayname |
+| Email address (mail) | urn:oid:0.9.2342.19200300.100.1.3 | user.mail |
+| eduPersonPrincipalName* | urn:oid:1.3.6.1.4.1.5923.1.1.1.6 | user.userprincipalname |
 
 ### Asserting MFA
 
