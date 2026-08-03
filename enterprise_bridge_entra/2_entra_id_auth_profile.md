@@ -41,7 +41,7 @@ However, if your institution’s security policies require assignment, then sett
    Enter the Entity ID & Reply URL (ACS URL) provided by the Implementation Lead.
 :::
 
-### Configure Claims
+## Configure Attribute Release
 
 Next, the attributes will be configured. Entra ID calls them claims. Entra ID also allows you to perform transformations to your attributes. 
 
@@ -81,13 +81,13 @@ In this case, add an additional attribute with the following name and value,
 By adding this attribute, you are asserting that all users that use this application have performed MFA.
 :::
 
-### Signing Settings
+## Assertion Settings
 
 Entra ID signs both the SAML response & assertion. Some applications may only want one or the other signed. 
 
 Our recommendation for the default application is to only sign the response. This configuration will match Shibboleth’s default behavior.
 
-### Encryption Settings (Optional)
+### Encryption (Optional)
 
 Customers moving from Shibboleth likely have a default policy to encrypt all assertions. 
 
