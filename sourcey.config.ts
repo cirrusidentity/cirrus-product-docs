@@ -47,7 +47,12 @@ export default defineConfig({
       {
         tab: "Identities API Reference",
         slug: "api",
-        source: openapi("./openapi.json"),
+        source: openapi("./identity.json"),
+      },
+      {
+        tab: "Log API Reference",
+        slug: "api",
+        source: openapi("./log.json"),
       },
     ],
   },

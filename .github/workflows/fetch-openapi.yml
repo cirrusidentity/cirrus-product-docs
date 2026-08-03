@@ -1,0 +1,43 @@
+name: Fetch and Update OpenAPI Schemas
+
+on:
+  schedule:
+    # Runs every day at midnight UTC
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+    # Allows manual triggering from the GitHub Actions tab
+
+jobs:
+  update-schemas:
+    runs-on: ubuntu-latest
+    permissions:
+      # Gives the action permission to write and commit changes to the repository
+      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Fetch Identity OpenAPI JSON
+        run: |
+          curl -s -L "https://api.cirrusidentity.com/identities/v1/openapi.json" -o identity.json
+
+      - name: Fetch Log OpenAPI JSON
+        run: |
+          curl -s -L "https://api.cirrusidentity.com/logs/v1/openapi.json" -o log.json
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@://github.com"
+
+          # Stage the specific files to overwrite existing ones
+          git add identity.json log.json
+
+          # Only commit and push if changes actually exist to prevent workflow errors
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: auto-update OpenAPI schemas [skip ci]"
+            git push origin main
+          else
+            echo "No changes detected in OpenAPI schemas."
+          fi
