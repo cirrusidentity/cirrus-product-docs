@@ -26,6 +26,80 @@ jobs:
         run: |
           curl -s -L "https://api.cirrusidentity.com/logs/v1/openapi.json" -o log.json
 
+      - name: Transform OpenAPI JSON Files
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            // Define the files to process
+            const filesToProcess = ['identity.json', 'log.json'];
+
+            // Helper function to split camelCase/PascalCase and convert to Title Case
+            function toTitleCase(str) {
+              if (!str) return str;
+              // Separate camelCase words with spaces
+              const separated = str.replace(/(?<!^)(?=[A-Z])/g, ' ');
+              // Convert to Title Case
+              return separated.replace(/\w\S*/g, (txt) => {
+                return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+              });
+            }
+
+            filesToProcess.forEach(filePath => {
+              if (!fs.existsSync(filePath)) {
+                console.log(`Warning: File not found, skipping: ${filePath}`);
+                return;
+              }
+
+              console.log(`Processing file: ${filePath}`);
+              const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+
+              // 1. Transform Headings in Tags
+              if (data.tags && Array.isArray(data.tags)) {
+                data.tags.forEach(tag => {
+                  if (tag.name) tag.name = toTitleCase(tag.name);
+                });
+              }
+
+              // 2. Transform Headings in Paths (Tags and Summaries)
+              if (data.paths) {
+                Object.keys(data.paths).forEach(pathKey => {
+                  Object.keys(data.paths[pathKey]).forEach(method => {
+                    const operation = data.paths[pathKey][method];
+                    if (operation && typeof operation === 'object') {
+                      // Fix tags assigned to endpoints
+                      if (operation.tags && Array.isArray(operation.tags)) {
+                        operation.tags = operation.tags.map(t => toTitleCase(t));
+                      }
+                      // Fix operation summaries
+                      if (operation.summary && typeof operation.summary === 'string') {
+                        operation.summary = toTitleCase(operation.summary);
+                      }
+                    }
+                  });
+                });
+              }
+
+              // 3. Remove Schemas Section
+              if (data.components && data.components.schemas) {
+                delete data.components.schemas;
+                // Clean up components object if it is now completely empty
+                if (Object.keys(data.components).length === 0) {
+                  delete data.components;
+                }
+              }
+
+              // Remove older Swagger 2.0 definitions if present
+              if (data.definitions) {
+                delete data.definitions;
+              }
+
+              // Write the modified JSON back to disk
+              fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
+              console.log(`Successfully transformed ${filePath}`);
+            });
+
       - name: Commit and Push Changes
         run: |
           git config --global user.name "github-actions[bot]"
