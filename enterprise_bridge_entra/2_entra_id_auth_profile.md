@@ -5,11 +5,11 @@ description: Creating an authentication profile to integrate Bridge.
 
 Each unique authentication profile is equivalent to its own Entra ID [Enterprise Application](https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/add-application-portal).
 
+Your Cirrus Implementation Lead will work with you to develop additional profiles & provide support for configuration. 
+
 :::info Definition
 An authentication profile includes a NameID format and value, set of attributes, and signing & encryption settings. A typical implementation will include a default profile for SAML and one for CAS. Additional profiles can be created if required.
 :::
-
-Your Cirrus Implementation Lead will work with you to develop additional profiles & provide support for configuration. 
 
 ## Creating An Enterprise Application
 
