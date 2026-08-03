@@ -81,20 +81,6 @@ jobs:
                 });
               }
 
-              // 3. Remove Schemas Section
-              if (data.components && data.components.schemas) {
-                delete data.components.schemas;
-                // Clean up components object if it is now completely empty
-                if (Object.keys(data.components).length === 0) {
-                  delete data.components;
-                }
-              }
-
-              // Remove older Swagger 2.0 definitions if present
-              if (data.definitions) {
-                delete data.definitions;
-              }
-
               // Write the modified JSON back to disk
               fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
               console.log(`Successfully transformed ${filePath}`);
