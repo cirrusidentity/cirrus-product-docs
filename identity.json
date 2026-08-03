@@ -1,1 +1,2291 @@
-{"openapi":"3.1.0","info":{"title":"Cirrus Identity Identities API","description":"\n## Permissions\n\nIdentities API credentials are managed by organizational admins in the Cirrus Console.\n\nYou can validate the permissions associated with your credential under the **Miscellaneous** category.\n\nSupported **Miscellaneous** operations:\n  - retrieve permissions for the current API credential\n\n## Identities\n\nIdentity objects are the top-level records that track information or assets associated with a user.\n\nSupported **identities** operations: \n  - list all identities\n  - list identities with an attribute collection associated with a specific authority (for example, show all identities\n    with the \"alumni\" authority)\n  - fetch a single identity by `cirrusUid`\n  - create a new identity, along with optional associations that may be configured for your environment, such as\n    OrgBrandedID login credentials, generated user identifiers with a specific format, or specific attribute collections\n  - modify an existing identity -- update any of `givenName`, `sn`, and `mail`\n  - search identities by a keyword (`searchTerm`) -- name and email fields on the identity, and any\n    linked attribute collections, will be searched using this term as a sub-string match\n\n## Attribute Collections\n\nAttribute collections are bundles of attributes associated with a specific authority, such as a department or a sign-in credential.\n\nSupported **attributeCollections** operations:\n  - create a new attribute collection under an authorized authority\n  - modify an existing attribute collection (replace or merge attributes)\n  - delete an existing attribute collection\n\n## Remote Credentials\n\nRemote credentials are a special case of an attribute collection, used to pre-link an identity record with a credential\nissued by a remote authentication provider *prior* to that credential being seen at a Cirrus Proxy. Remote credentials\nensure that authentication at a Cirrus Proxy with a particular remote authentication provider credential results in\nassociation with the correct, pre-provisioned identity record.\n\nBecause remote credentials represent a remote (external) authentication provider, only the authority and uid (credential identifier)\nare permitted; no additional attributes may be provided. Remote credential authorities **may not** be any Cirrus OBID or Gateway\nIdentity Provider EntityID.\n\nRemote credential attribute collections are included in the response of **identities** read operations that include\n`attributeCollections` in their output (i.e., `GET /list/byAttributeCollection/{environment}` and `GET /fetch/{cirrusId}`).\nThe `attributes` member of any remote credential attribute collection will always be an empty object (i.e., `\"attributes\": {}`).\n\nSupported **remoteCredentials** operations:\n  - create a new remote credential\n  - delete an existing remote credential\n\n## OrgBrandedIDs\n\nOrgBrandedID is a hosted username and password option included with many Cirrus Identity subscriptions.\n\nSupported **OrgBrandedID** operations:\n  - create a new OBID and link its attribute collection to an existing identity\n","version":"1.1.0"},"paths":{"/permissions":{"get":{"tags":["miscellaneous"],"summary":"Fetch Permissions","description":"Return permissions for the current credential.\n\nPermissions are returned as a JSON object with a structure similar to the following:\n\n```\n{\n    \"username\": \"KQRAMJQXENIABXTZ\",\n    \"orgDomain\": \"athena-institute.net\",\n    \"environments\": {\n        \"prod\": {\n            \"permissions\": [\n                \"admin-all\",\n                \"read\",\n                \"write\",\n                \"delete\"\n            ],\n            \"customerUidKeys\": [\"athena:netId\"],\n            \"attributeAuthorities\": [\"parking\", \"foundation\"]\n        },\n        \"test\": {\n            \"permissions\": [\n                \"admin-all\",\n                \"read\",\n                \"write\",\n                \"delete\"\n            ],\n            \"customerUidKeys\": [\"athena:netId\"],\n            \"attributeAuthorities\": [\"parking\", \"foundation\"],\n        }\n    },\n    \"obid\": [\n        \"read\",\n        \"write\"\n    ]\n}\n```\n\nProperties in the permissions object:\n\n- `username`: API credential username currently being used\n- `orgDomain`: the organizational domain for which the credential was provisioned\n- `environments`: there will be two environments listed here, `test` and `prod`\n  - `environments.<environment>.permissions`: an array of permissions in the specified identity environment:\n    - `admin-all`: API credential has all available identity record permissions, including permissions introduced in the future\n    - `read`: API credential has read access to identity records\n    - `write`: API credential has write access (create/modify) to identity records\n  - `environments.<environment>.customerUidKeys`: an array of customer-defined UID keys which the API credential may use when creating identities. Please contact Cirrus Identity Support for additional information.\n  - `environments.<environment>.attributeAuthorities`: an array of attribute authority identifiers which the API credential may use when creating identities or creating/modifying attribute collections. Please contact Cirrus Identity Support for additional information.\n- `obid`: an array of permissions for OBID accounts. These permissions apply in both the `test` and `prod` environments:\n  - `read`: API credential has read access to OBID account attribute collections\n  - `write`: API credential may auto-create an OBID account at identity creation time, or create an OBID account for a pre-existing identity","operationId":"fetch_permissions_permissions_get","responses":{"200":{"description":"Success","content":{"application/json":{"schema":{"$ref":"#/components/schemas/IdentitiesApiUserPermissionsModel"},"example":{"username":"KQRAMJQXENIABXTZ","orgDomain":"athena-institute.net","environments":{"prod":{"permissions":["admin-all","read","write"],"customerUidKeys":["athena:netId"],"attributeAuthorities":["parking","foundation"]},"test":{"permissions":["admin-all","read","write"],"customerUidKeys":["athena:netId"],"attributeAuthorities":["parking","foundation"]}},"obid":["read","write"]}}}},"401":{"description":"Unauthorized","content":{"application/json":{"example":{"detail":"not authorized"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"example":{"detail":"database error: ..."}}}}},"security":[{"HTTPBasic":[]}]}},"/list/{environment}":{"get":{"tags":["identities"],"summary":"List Identities","description":"List all identity records for a specific environment (`test` or `prod`).","operationId":"list_identities_list__environment__get","security":[{"HTTPBasic":[]}],"parameters":[{"name":"environment","in":"path","required":true,"schema":{"$ref":"#/components/schemas/IdentityEnvironment","description":"identity environment"},"description":"identity environment"},{"name":"page_idx","in":"query","required":false,"schema":{"type":"integer","minimum":1,"description":"requested page index","default":1,"title":"Page Idx"},"description":"requested page index"},{"name":"page_size","in":"query","required":false,"schema":{"type":"integer","maximum":50,"minimum":1,"description":"requested number of items per page","default":10,"title":"Page Size"},"description":"requested number of items per page"},{"name":"sort_key","in":"query","required":false,"schema":{"$ref":"#/components/schemas/IdentityListSortKey","description":"sort key","enum":["cirrusUid","sn","givenName","mail","createTime","lastUpdateTime"],"default":"createTime"},"description":"sort key"},{"name":"sort_order","in":"query","required":false,"schema":{"$ref":"#/components/schemas/IdentityListSortOrder","description":"sort order","default":"asc"},"description":"sort order"},{"name":"search_term","in":"query","required":false,"schema":{"anyOf":[{"type":"string"},{"type":"null"}],"description":"optional search term","examples":["hugohail@example.edu"],"title":"Search Term"},"description":"optional search term"}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Page_IdentityModelBase_"}}}},"401":{"description":"Unauthorized","content":{"application/json":{"example":{"detail":"not authorized"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"example":{"detail":"database error: ..."}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/list/byAttributeCollection/{environment}":{"get":{"tags":["identities"],"summary":"List Identities By Attr Collection","description":"List all identity records associated with a specific `attributeCollectionAuthority` (e.g., records containing an\nalumni attribute collection), or a combination of `attributeCollectionAuthority` and `uid` (e.g., find the alumni record\nwith alumni uid of '1234567').","operationId":"list_identities_by_attr_collection_list_byAttributeCollection__environment__get","security":[{"HTTPBasic":[]}],"parameters":[{"name":"environment","in":"path","required":true,"schema":{"$ref":"#/components/schemas/IdentityEnvironment","description":"identity environment"},"description":"identity environment"},{"name":"attributeAuthority","in":"query","required":true,"schema":{"type":"string","description":"attribute authority identitifer","title":"Attributeauthority"},"description":"attribute authority identitifer"},{"name":"attributeAuthorityUid","in":"query","required":false,"schema":{"type":"string","description":"unique UID assigned by attribute authority","title":"Attributeauthorityuid"},"description":"unique UID assigned by attribute authority"},{"name":"page_idx","in":"query","required":false,"schema":{"type":"integer","minimum":1,"default":1,"title":"Page Idx"}},{"name":"page_size","in":"query","required":false,"schema":{"type":"integer","maximum":50,"minimum":1,"default":10,"title":"Page Size"}},{"name":"sort_key","in":"query","required":false,"schema":{"$ref":"#/components/schemas/IdentityListSortKey","default":"createTime"}},{"name":"sort_order","in":"query","required":false,"schema":{"$ref":"#/components/schemas/IdentityListSortOrder","default":"asc"}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Page_IdentityModel_"}}}},"401":{"description":"Unauthorized","content":{"application/json":{"example":{"detail":"not authorized"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"example":{"detail":"database error: ..."}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/search/{environment}/{searchTerm}":{"get":{"tags":["identities"],"summary":"Search Identities","description":"List `cirrusUid` values for identity records matching search term. Search includes attribute collections.","operationId":"search_identities_search__environment___searchTerm__get","security":[{"HTTPBasic":[]}],"parameters":[{"name":"environment","in":"path","required":true,"schema":{"$ref":"#/components/schemas/IdentityEnvironment","description":"identity environment"},"description":"identity environment"},{"name":"searchTerm","in":"path","required":true,"schema":{"type":"string","description":"term to use in search; will be sub-string matched against name and email fields in identity and linked attributeCollections","title":"Searchterm"},"description":"term to use in search; will be sub-string matched against name and email fields in identity and linked attributeCollections"}],"responses":{"200":{"description":"Success","content":{"application/json":{"schema":{"type":"array","items":{"type":"string"},"title":"Response Search Identities Search  Environment   Searchterm  Get"},"example":["2ca73926-1c6a-44e9-8fc1-6c0c835d4a15","2d615256-c822-4435-bf38-d36ba3c0f6c4","9b8dadb8-62c1-4461-a4d7-2201a1cac407"]}}},"401":{"description":"Unauthorized","content":{"application/json":{"example":{"detail":"not authorized"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"example":{"detail":"database error: ..."}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/fetch/{cirrusUid}":{"get":{"tags":["identities"],"summary":"Fetch Identity","description":"Retrieve a single identity record by `cirrusUid`.","operationId":"fetch_identity_fetch__cirrusUid__get","security":[{"HTTPBasic":[]}],"parameters":[{"name":"cirrusUid","in":"path","required":true,"schema":{"type":"string","description":"`cirrusUid` of identity record","title":"Cirrusuid"},"description":"`cirrusUid` of identity record"}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/IdentityModel"}}}},"401":{"description":"Unauthorized","content":{"application/json":{"example":{"detail":"not authorized"}}}},"404":{"description":"Not Found","content":{"application/json":{"example":{"detail":"record not found"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"example":{"detail":"database error: ..."}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/create/{environment}":{"post":{"tags":["identities"],"summary":"Create Identity","description":"Create an identity record, including optional additions as permitted for your credential:\n  - `obid` - Create an OrgBrandedID sign-in credential for the identity, inviting the user to set a password for it, e.g.:\n    ```\n    \"obid\": true\n    ```\n  - `quiet` - Suppress any user-facing emails that might be triggered as a result of account creation -  e.g., an OrgBrandedID account setup email\n    ```\n    \"quiet\": true\n    ```\n  - `attributeCollections` - Create one or more authorized types of attribute collections for the identity, e.g.:\n    ```\n    \"attributeCollections\": [\n        {\n            \"attributeCollectionAuthority\": \"alumni\",\n            \"uid\": \"al-12345\",\n            \"attributes\": {\n                \"alumniId\": [\n                    \"al-12345\"\n                ],\n                \"givenName\": [\n                    \"Alice\"\n                ],\n                \"sn\": [\n                    \"Arcus\"\n                ]\n            }\n        }\n    ]\n    ```\n  - `remoteCredentials` - Create one or more remote credentials for the identity, e.g.:\n    ```\n    \"remoteCredentials\": [\n        {\n            \"remoteCredentialAuthority\": \"https://shib.athena-institute.net/idp/shibboleth\",\n            \"uid\": \"hugohail123\"\n        }\n    ]\n    ```\n  - `customerUidGen` - Auto-generate an identifier with a format customized to your organization, e.g.:\n    ```\n    \"customerUidGen\": \"athenaCustomId\"\n    ```","operationId":"create_identity_create__environment__post","security":[{"HTTPBasic":[]}],"parameters":[{"name":"environment","in":"path","required":true,"schema":{"$ref":"#/components/schemas/IdentityEnvironment","description":"identity environment"},"description":"identity environment"}],"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/IdentityCreateInput","examples":[{"mail":"aarcus@athena-institute.net","givenName":"Alice","sn":"Arcus","obid":false,"quiet":false,"allowDuplicateEmail":false}]}}}},"responses":{"201":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/IdentityModel"}}}},"401":{"description":"Unauthorized","content":{"application/json":{"example":{"detail":"not authorized"}}}},"409":{"description":"Conflict","content":{"application/json":{"examples":{"Email Conflict":{"value":{"detail":"identity record(s) for email \"user@domain.edu\" already exist: c2a34150-8f43-4f52-9601-3e7518ef0f34"}},"OBID Conflict":{"value":{"detail":"OBID Error: account for \"user@domain.edu\" exists and is linked to other identity records: c2a34150-8f43-4f52-9601-3e7518ef0f34"}},"AttributeCollection Conflict":{"value":{"detail":"attribute collection for (authority = \"sorId\", uid = \"sorUid\") already exists for identity UID = \"60ebb104-e6de-481e-aeed-b9f53083d05b\""}}}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"example":{"detail":"database error: ..."}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/modify/{cirrusUid}":{"patch":{"tags":["identities"],"summary":"Modify Identity","description":"Modify core attributes of identity record.\n\nThe attributes that may be modified are:\n\n- `givenName`\n- `sn`\n- `mail`\n\nAny combination of these attributes may be provided; only provided attribute values will be updated. Attributes\nwith a value of `null` will be ignored (treated the same as omitting them).\n\nIf the `mail` attribute value is present on another identity in the same environment, a `409 Conflict` error will\nbe returned. If you wish to override this behavior, and allow duplicate email values, pass `true` for the boolean\nparameter, `allowDuplicateEmail`.\n\nThe updated identity record is returned upon success.","operationId":"modify_identity_modify__cirrusUid__patch","security":[{"HTTPBasic":[]}],"parameters":[{"name":"cirrusUid","in":"path","required":true,"schema":{"type":"string","description":"`cirrusUid` of identity record","title":"Cirrusuid"},"description":"`cirrusUid` of identity record"}],"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/IdentityModifyInput"}}}},"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/IdentityModel"}}}},"401":{"description":"Unauthorized","content":{"application/json":{"example":{"detail":"not authorized"}}}},"404":{"description":"Not Found","content":{"application/json":{"example":{"detail":"record not found"}}}},"409":{"description":"Conflict","content":{"application/json":{"examples":{"Email Conflict":{"value":{"detail":"identity record(s) for email \"user@domain.edu\" already exist: c2a34150-8f43-4f52-9601-3e7518ef0f34"}}}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"example":{"detail":"database error: ..."}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/attributeCollections/create/{cirrusUid}":{"post":{"tags":["attributeCollections"],"summary":"Create Attribute Collection","description":"Create a new attribute collection under an authorized authority for an existing identity record.","operationId":"create_attribute_collection_attributeCollections_create__cirrusUid__post","security":[{"HTTPBasic":[]}],"parameters":[{"name":"cirrusUid","in":"path","required":true,"schema":{"type":"string","description":"`cirrusUid` of identity record","title":"Cirrusuid"},"description":"`cirrusUid` of identity record"}],"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/AttributeCollectionInput"}}}},"responses":{"201":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/AttributeCollectionCreateOrModifyOutput"}}}},"401":{"description":"Unauthorized","content":{"application/json":{"example":{"detail":"not authorized"}}}},"404":{"description":"Not Found","content":{"application/json":{"example":{"detail":"record not found"}}}},"409":{"description":"Conflict","content":{"application/json":{"example":{"detail":"record already exists"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"example":{"detail":"database error: ..."}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/attributeCollections/modify/{cirrusUid}":{"put":{"tags":["attributeCollections"],"summary":"Modify Attribute Collection","description":"Modify a specific attribute collection under an authorized authority for an identity record.","operationId":"modify_attribute_collection_attributeCollections_modify__cirrusUid__put","security":[{"HTTPBasic":[]}],"parameters":[{"name":"cirrusUid","in":"path","required":true,"schema":{"type":"string","description":"`cirrusUid` of identity record","title":"Cirrusuid"},"description":"`cirrusUid` of identity record"},{"name":"overwrite","in":"query","required":false,"schema":{"type":"boolean","description":"completely overwrite attributes (`true`) or merge (default, `false`)","default":false,"title":"Overwrite"},"description":"completely overwrite attributes (`true`) or merge (default, `false`)"}],"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/AttributeCollectionInput"}}}},"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/AttributeCollectionCreateOrModifyOutput"}}}},"401":{"description":"Unauthorized","content":{"application/json":{"example":{"detail":"not authorized"}}}},"404":{"description":"Not Found","content":{"application/json":{"example":{"detail":"record not found"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"example":{"detail":"database error: ..."}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/attributeCollections/delete/{cirrusUid}":{"delete":{"tags":["attributeCollections"],"summary":"Delete Attribute Collection","description":"Delete a specific attribute collection under an authorized authority from an identity record.","operationId":"delete_attribute_collection_attributeCollections_delete__cirrusUid__delete","security":[{"HTTPBasic":[]}],"parameters":[{"name":"cirrusUid","in":"path","required":true,"schema":{"type":"string","description":"`cirrusUid` of identity record","title":"Cirrusuid"},"description":"`cirrusUid` of identity record"},{"name":"attributeAuthority","in":"query","required":true,"schema":{"type":"string","description":"identifier of attribute collection authority","title":"Attributeauthority"},"description":"identifier of attribute collection authority"},{"name":"attributeAuthorityUid","in":"query","required":true,"schema":{"type":"string","description":"unique identifier for attribute collection","title":"Attributeauthorityuid"},"description":"unique identifier for attribute collection"}],"responses":{"204":{"description":"Successful Response"},"401":{"description":"Unauthorized","content":{"application/json":{"example":{"detail":"not authorized"}}}},"404":{"description":"Not Found","content":{"application/json":{"example":{"detail":"record not found"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"example":{"detail":"database error: ..."}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/remoteCredentials/create/{cirrusUid}":{"post":{"tags":["remoteCredentials"],"summary":"Create Remote Credential","description":"Create a new remote credential under an existing identity record.","operationId":"create_remote_credential_remoteCredentials_create__cirrusUid__post","security":[{"HTTPBasic":[]}],"parameters":[{"name":"cirrusUid","in":"path","required":true,"schema":{"type":"string","description":"`cirrusUid` of identity record","title":"Cirrusuid"},"description":"`cirrusUid` of identity record"}],"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/RemoteCredentialInput"}}}},"responses":{"201":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/AttributeCollectionCreateOrModifyOutput"}}}},"401":{"description":"Unauthorized","content":{"application/json":{"example":{"detail":"not authorized"}}}},"404":{"description":"Not Found","content":{"application/json":{"example":{"detail":"record not found"}}}},"409":{"description":"Conflict","content":{"application/json":{"example":{"detail":"record already exists"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"example":{"detail":"database error: ..."}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/remoteCredentials/delete/{cirrusUid}":{"delete":{"tags":["remoteCredentials"],"summary":"Delete Remote Credential","description":"Delete a specific remote credential under an identity record.","operationId":"delete_remote_credential_remoteCredentials_delete__cirrusUid__delete","security":[{"HTTPBasic":[]}],"parameters":[{"name":"cirrusUid","in":"path","required":true,"schema":{"type":"string","description":"`cirrusUid` of identity record","title":"Cirrusuid"},"description":"`cirrusUid` of identity record"},{"name":"remoteCredentialAuthority","in":"query","required":true,"schema":{"type":"string","description":"identifier of remote credential authority","title":"Remotecredentialauthority"},"description":"identifier of remote credential authority"},{"name":"remoteCredentialUid","in":"query","required":true,"schema":{"type":"string","description":"unique identifier at remote credential authority","title":"Remotecredentialuid"},"description":"unique identifier at remote credential authority"}],"responses":{"204":{"description":"Successful Response"},"401":{"description":"Unauthorized","content":{"application/json":{"example":{"detail":"not authorized"}}}},"404":{"description":"Not Found","content":{"application/json":{"example":{"detail":"record not found"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"example":{"detail":"database error: ..."}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/obids/create/{cirrusUid}":{"post":{"tags":["obid"],"summary":"Create Obid","description":"Create a new OrgBrandedID sign-in credential for an existing identity record, sending an onboarding email to the\ndesignated email address. The `quiet` flag can be used to suppress the OrgBrandedID account setup email.","operationId":"create_obid_obids_create__cirrusUid__post","security":[{"HTTPBasic":[]}],"parameters":[{"name":"cirrusUid","in":"path","required":true,"schema":{"type":"string","description":"`cirrusUid` of identity record","title":"Cirrusuid"},"description":"`cirrusUid` of identity record"}],"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/OrgBrandedIdAccountCreateInput"}}}},"responses":{"201":{"description":"Success","content":{"application/json":{"schema":{"$ref":"#/components/schemas/AttributeCollectionCreateOrModifyOutput"},"example":{"cirrusUid":"a82113d1-7072-494f-91c5-be3dbe2db08d","attributeCollection":{"attributeCollectionAuthority":"https://athena-guest.idp.cirrusidentity.com/idp","uid":"cuid-8a37d4f4-d09f-4ac5-bf67-9e38f987bf1c","attributes":{"urn:oid:2.5.4.4":["Arcus"],"urn:oid:0.9.2342.19200300.100.1.3":["aarcus@athena-institute.net"],"urn:oid:2.16.840.1.113730.3.1.241":["Alice Arcus"],"urn:oid:2.5.4.3":["Alice Arcus"],"urn:oid:0.9.2342.19200300.100.1.1":["8a37d4f4-d09f-4ac5-bf67-9e38f987bf1c"],"urn:oid:2.5.4.42":["Alice"],"scope":["athena-guest.idp.cirrusidentity.com"],"urn:oid:1.3.6.1.4.1.5923.1.1.1.6":["8a37d4f4-d09f-4ac5-bf67-9e38f987bf1c@athena-guest.idp.cirrusidentity.com"]},"createTime":"2025-10-31T19:12:08+00:00","lastUpdateTime":"2025-10-31T19:12:08+00:00","attributeCollectionAuthorityType":"obid"}}}}},"401":{"description":"Unauthorized","content":{"application/json":{"example":{"detail":"not authorized"}}}},"404":{"description":"Not Found","content":{"application/json":{"example":{"detail":"record not found"}}}},"409":{"description":"Conflict","content":{"application/json":{"example":{"detail":"OBID Error: Account for [user@domain.edu] exists and cannot be created again."}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"example":{"detail":"database error: ..."}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}}},"components":{"schemas":{"AttributeCollectionAuthorityType":{"type":"string","enum":["sor","obid","gateway"],"title":"AttributeCollectionAuthorityType","description":"enum for deployment patterns"},"AttributeCollectionCreateOrModifyOutput":{"properties":{"cirrusUid":{"type":"string","title":"Cirrusuid","description":"`cirrusUid` of identity record","examples":["a82113d1-7072-494f-91c5-be3dbe2db08d"]},"attributeCollection":{"$ref":"#/components/schemas/AttributeCollectionOutput","description":"created/modified attributeCollection"}},"type":"object","required":["cirrusUid","attributeCollection"],"title":"AttributeCollectionCreateOrModifyOutput","description":"wrapper for returning attribute collections along with cirrusUid"},"AttributeCollectionInput":{"properties":{"attributeCollectionAuthority":{"type":"string","title":"Attributecollectionauthority","description":"identifier of attribute collection authority","examples":["AthenaID"]},"uid":{"type":"string","title":"Uid","description":"unique identifier for attribute authority collection instance","examples":["ai-12345"]},"attributes":{"additionalProperties":true,"type":"object","title":"Attributes","description":"object of attribute keys and list of values","default":{},"examples":[{"athenaId":["ai-12345"],"givenName":["Alice"],"sn":["Arcus"]}]}},"type":"object","required":["attributeCollectionAuthority","uid"],"title":"AttributeCollectionInput","description":"attribute collection model"},"AttributeCollectionOutput":{"properties":{"attributeCollectionAuthority":{"type":"string","title":"Attributecollectionauthority","description":"identifier of attribute collection authority","examples":["AthenaID"]},"uid":{"type":"string","title":"Uid","description":"unique identifier for attribute authority collection instance","examples":["ai-12345"]},"attributes":{"additionalProperties":true,"type":"object","title":"Attributes","description":"object of attribute keys and list of values","default":{},"examples":[{"athenaId":["ai-12345"],"givenName":["Alice"],"sn":["Arcus"]}]},"createTime":{"type":"string","format":"date-time","title":"Createtime","description":"attribute collection creation timestamp"},"lastUpdateTime":{"type":"string","format":"date-time","title":"Lastupdatetime","description":"attribute collection last update timestamp"},"credentialLastUsed":{"anyOf":[{"type":"string","format":"date-time"},{"type":"null"}],"title":"Credentiallastused","description":"last time used, if attribute collection represents a credential"},"attributeCollectionAuthorityType":{"$ref":"#/components/schemas/AttributeCollectionAuthorityType","description":"type of attribute collection authority","readOnly":true}},"type":"object","required":["attributeCollectionAuthority","uid","createTime","lastUpdateTime","attributeCollectionAuthorityType"],"title":"AttributeCollectionOutput","description":"output attribute collection model"},"HTTPValidationError":{"properties":{"detail":{"items":{"$ref":"#/components/schemas/ValidationError"},"type":"array","title":"Detail"}},"type":"object","title":"HTTPValidationError"},"IdentitiesApiUserPermissionsModel":{"properties":{"username":{"type":"string","title":"Username"},"orgDomain":{"type":"string","title":"Orgdomain"},"environments":{"additionalProperties":{"$ref":"#/components/schemas/LinkGroup"},"type":"object","title":"Environments","description":"Map of linkgroup names to linkgroup permissions","default":{}},"obid":{"items":{"type":"string"},"type":"array","title":"Obid","description":"List of OBID permissions","default":[]}},"type":"object","required":["username","orgDomain"],"title":"IdentitiesApiUserPermissionsModel","description":"model for user/permissions model (for identities API)"},"IdentityCreateInput":{"properties":{"mail":{"type":"string","format":"email","title":"Mail","description":"email address","examples":["aarcus@athena-institute.net"]},"givenName":{"type":"string","maxLength":255,"title":"Givenname","description":"given name","examples":["Alice"]},"sn":{"type":"string","maxLength":255,"title":"Sn","description":"surname","examples":["Arcus"]},"customerUidGen":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Customeruidgen","description":"optional Cirrus-provided key for generating customer-defined UIDs"},"obid":{"type":"boolean","title":"Obid","description":"whether to create/link an OrgBrandedID account for `mail` value","default":false},"quiet":{"type":"boolean","title":"Quiet","description":"suppress any user-facing emails that might be triggered as a result of account creation - e.g., an OrgBrandedID account setup email","default":false},"allowDuplicateEmail":{"type":"boolean","title":"Allowduplicateemail","description":"whether to allow creation of an identity record with an email address already associated with another identity","default":false},"attributeCollections":{"anyOf":[{"items":{"$ref":"#/components/schemas/AttributeCollectionInput"},"type":"array"},{"type":"null"}],"title":"Attributecollections","description":"optional list of attribute collections to create and link to identity record"},"remoteCredentials":{"anyOf":[{"items":{"$ref":"#/components/schemas/RemoteCredentialInput"},"type":"array"},{"type":"null"}],"title":"Remotecredentials","description":"optional list of remote credential (authority, uid) pairs to create and link to identity record"}},"type":"object","required":["mail","givenName","sn"],"title":"IdentityCreateInput","description":"model for creating a new identity record"},"IdentityEnvironment":{"type":"string","enum":["test","prod"],"title":"IdentityEnvironment","description":"enum for allowed linking environments"},"IdentityListSortKey":{"type":"string","enum":["id","cirrusUid","sn","givenName","mail","createTime","lastUpdateTime"],"title":"IdentityListSortKey","description":"enum for allowed fields to sort identity list by"},"IdentityListSortOrder":{"type":"string","enum":["asc","desc"],"title":"IdentityListSortOrder","description":"enum for allowed orders to sort identity list by"},"IdentityModel":{"properties":{"cirrusUid":{"type":"string","title":"Cirrusuid","description":"`cirrusUid` of identity record","examples":["a82113d1-7072-494f-91c5-be3dbe2db08d"]},"mail":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Mail","description":"email address","examples":["aarcus@athena-institite.net"]},"givenName":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Givenname","description":"given name","examples":["Alice"]},"sn":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Sn","description":"Surname","examples":["Arcus"]},"createTime":{"type":"string","format":"date-time","title":"Createtime","description":"identity creation timestamp"},"lastUpdateTime":{"type":"string","format":"date-time","title":"Lastupdatetime","description":"identity last update timestamp"},"attributeCollections":{"anyOf":[{"items":{"$ref":"#/components/schemas/AttributeCollectionOutput"},"type":"array"},{"type":"null"}],"title":"Attributecollections","description":"list of `AttributeCollectionOutput`"}},"type":"object","required":["cirrusUid","createTime","lastUpdateTime"],"title":"IdentityModel","description":"full identity model","examples":[{"attributeCollections":[{"attributeCollectionAuthority":"https://athena-guest.idp.cirrusidentity.com/idp","attributeCollectionAuthorityType":"obid","attributes":{"scope":["athena-guest.idp.cirrusidentity.com"],"urn:oid:0.9.2342.19200300.100.1.1":["8a37d4f4-d09f-4ac5-bf67-9e38f987bf1c"],"urn:oid:0.9.2342.19200300.100.1.3":["aarcus@athena-institute.net"],"urn:oid:1.3.6.1.4.1.5923.1.1.1.6":["8a37d4f4-d09f-4ac5-bf67-9e38f987bf1c@athena-guest.idp.cirrusidentity.com"],"urn:oid:2.16.840.1.113730.3.1.241":["Alice Arcus"],"urn:oid:2.5.4.3":["Alice Arcus"],"urn:oid:2.5.4.4":["Arcus"],"urn:oid:2.5.4.42":["Alice"]},"createTime":"2025-10-31T19:12:08+00:00","credentialLastUsed":"2026-06-04T17:16:35+00:00","lastUpdateTime":"2025-10-31T19:12:08+00:00","uid":"cuid-8a37d4f4-d09f-4ac5-bf67-9e38f987bf1c"},{"attributeCollectionAuthority":"AthenaID","attributeCollectionAuthorityType":"sor","attributes":{"athenaId":["ai-12345"],"givenName":["Alice"],"sn":["Arcus"]},"createTime":"2025-11-02T01:24:00+00:00","lastUpdateTime":"2025-11-02T01:24:00+00:00","uid":"ai-12345"}],"cirrusUid":"a82113d1-7072-494f-91c5-be3dbe2db08d","createTime":"2025-10-31T19:12:07+00:00","givenName":"Alice","lastUpdateTime":"2025-10-31T19:12:07+00:00","mail":"aarcus@athena-institute.net","sn":"Arcus"}]},"IdentityModelBase":{"properties":{"cirrusUid":{"type":"string","title":"Cirrusuid","description":"`cirrusUid` of identity record","examples":["a82113d1-7072-494f-91c5-be3dbe2db08d"]},"mail":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Mail","description":"email address","examples":["aarcus@athena-institite.net"]},"givenName":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Givenname","description":"given name","examples":["Alice"]},"sn":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Sn","description":"Surname","examples":["Arcus"]},"createTime":{"type":"string","format":"date-time","title":"Createtime","description":"identity creation timestamp"},"lastUpdateTime":{"type":"string","format":"date-time","title":"Lastupdatetime","description":"identity last update timestamp"}},"type":"object","required":["cirrusUid","createTime","lastUpdateTime"],"title":"IdentityModelBase","description":"base identity model","examples":[{"cirrusUid":"a82113d1-7072-494f-91c5-be3dbe2db08d","createTime":"2025-10-31T19:12:07+00:00","givenName":"Alice","lastUpdateTime":"2025-10-31T19:12:07+00:00","mail":"aarcus@athena-institute.net","sn":"Arcus"}]},"IdentityModifyInput":{"properties":{"mail":{"anyOf":[{"type":"string","format":"email"},{"type":"null"}],"title":"Mail","description":"email address","examples":["aarcus@athena-institute.net"]},"givenName":{"anyOf":[{"type":"string","maxLength":255},{"type":"null"}],"title":"Givenname","description":"given name","examples":["Alice"]},"sn":{"anyOf":[{"type":"string","maxLength":255},{"type":"null"}],"title":"Sn","description":"surname","examples":["Arcus"]},"allowDuplicateEmail":{"type":"boolean","title":"Allowduplicateemail","description":"whether to allow creation of an identity record with an email address already associated with another identity","default":false}},"type":"object","title":"IdentityModifyInput","description":"model for modifying base properties on existing identity record"},"LinkGroup":{"properties":{"permissions":{"items":{"type":"string"},"type":"array","title":"Permissions","description":"List of permissions for org + link group","default":[]},"customerUidKeys":{"items":{"type":"string"},"type":"array","title":"Customeruidkeys","description":"List of Customer UID `tenantShortName:attributeCollectionAuthority` pairs","default":[]},"attributeAuthorities":{"items":{"type":"string"},"type":"array","title":"Attributeauthorities","description":"List of Customer attribute authorities","default":[]}},"type":"object","title":"LinkGroup","description":"linkgroup model"},"OrgBrandedIdAccountCreateInput":{"properties":{"givenName":{"anyOf":[{"type":"string","maxLength":255},{"type":"null"}],"title":"Givenname","description":"first name","examples":["Alice"]},"surname":{"type":"string","maxLength":255,"title":"Surname","description":"last name","examples":["Arcus"]},"email":{"type":"string","format":"email","title":"Email","description":"email address","examples":["aarcus@athena-institute.net"]},"quiet":{"type":"boolean","title":"Quiet","description":"suppress OrgBrandedID account setup email","default":false}},"type":"object","required":["surname","email"],"title":"OrgBrandedIdAccountCreateInput","description":"model for creating a new OBID account"},"Page_IdentityModelBase_":{"properties":{"items":{"items":{"$ref":"#/components/schemas/IdentityModelBase"},"type":"array","title":"Items","description":"list of items on this page"},"total_items":{"type":"integer","minimum":0.0,"title":"Total Items","description":"total number of items"},"page_cnt":{"type":"integer","minimum":0.0,"title":"Page Cnt","description":"total number of pages"},"page_size":{"type":"integer","minimum":0.0,"title":"Page Size","description":"number of items on this page"},"page_idx":{"type":"integer","minimum":1.0,"title":"Page Idx","description":"current page index"}},"type":"object","required":["items","total_items","page_cnt","page_size","page_idx"],"title":"Page[IdentityModelBase]"},"Page_IdentityModel_":{"properties":{"items":{"items":{"$ref":"#/components/schemas/IdentityModel"},"type":"array","title":"Items","description":"list of items on this page"},"total_items":{"type":"integer","minimum":0.0,"title":"Total Items","description":"total number of items"},"page_cnt":{"type":"integer","minimum":0.0,"title":"Page Cnt","description":"total number of pages"},"page_size":{"type":"integer","minimum":0.0,"title":"Page Size","description":"number of items on this page"},"page_idx":{"type":"integer","minimum":1.0,"title":"Page Idx","description":"current page index"}},"type":"object","required":["items","total_items","page_cnt","page_size","page_idx"],"title":"Page[IdentityModel]"},"RemoteCredentialInput":{"properties":{"remoteCredentialAuthority":{"type":"string","title":"Remotecredentialauthority","description":"identifier of remote credential authority","examples":["https://athena-institute.net/idp","urn:mace:incommon:athena-institute.net"]},"uid":{"type":"string","title":"Uid","description":"unique identifier at remote credential authority","examples":["ai-12345"]}},"type":"object","required":["remoteCredentialAuthority","uid"],"title":"RemoteCredentialInput","description":"remote credential model"},"ValidationError":{"properties":{"loc":{"items":{"anyOf":[{"type":"string"},{"type":"integer"}]},"type":"array","title":"Location"},"msg":{"type":"string","title":"Message"},"type":{"type":"string","title":"Error Type"},"input":{"title":"Input"},"ctx":{"type":"object","title":"Context"}},"type":"object","required":["loc","msg","type"],"title":"ValidationError"}},"securitySchemes":{"HTTPBasic":{"type":"http","scheme":"basic"}}},"servers":[{"url":"/identities/v1"}]}
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Cirrus Identity Identities API",
+    "description": "\n## Permissions\n\nIdentities API credentials are managed by organizational admins in the Cirrus Console.\n\nYou can validate the permissions associated with your credential under the **Miscellaneous** category.\n\nSupported **Miscellaneous** operations:\n  - retrieve permissions for the current API credential\n\n## Identities\n\nIdentity objects are the top-level records that track information or assets associated with a user.\n\nSupported **identities** operations: \n  - list all identities\n  - list identities with an attribute collection associated with a specific authority (for example, show all identities\n    with the \"alumni\" authority)\n  - fetch a single identity by `cirrusUid`\n  - create a new identity, along with optional associations that may be configured for your environment, such as\n    OrgBrandedID login credentials, generated user identifiers with a specific format, or specific attribute collections\n  - modify an existing identity -- update any of `givenName`, `sn`, and `mail`\n  - search identities by a keyword (`searchTerm`) -- name and email fields on the identity, and any\n    linked attribute collections, will be searched using this term as a sub-string match\n\n## Attribute Collections\n\nAttribute collections are bundles of attributes associated with a specific authority, such as a department or a sign-in credential.\n\nSupported **attributeCollections** operations:\n  - create a new attribute collection under an authorized authority\n  - modify an existing attribute collection (replace or merge attributes)\n  - delete an existing attribute collection\n\n## Remote Credentials\n\nRemote credentials are a special case of an attribute collection, used to pre-link an identity record with a credential\nissued by a remote authentication provider *prior* to that credential being seen at a Cirrus Proxy. Remote credentials\nensure that authentication at a Cirrus Proxy with a particular remote authentication provider credential results in\nassociation with the correct, pre-provisioned identity record.\n\nBecause remote credentials represent a remote (external) authentication provider, only the authority and uid (credential identifier)\nare permitted; no additional attributes may be provided. Remote credential authorities **may not** be any Cirrus OBID or Gateway\nIdentity Provider EntityID.\n\nRemote credential attribute collections are included in the response of **identities** read operations that include\n`attributeCollections` in their output (i.e., `GET /list/byAttributeCollection/{environment}` and `GET /fetch/{cirrusId}`).\nThe `attributes` member of any remote credential attribute collection will always be an empty object (i.e., `\"attributes\": {}`).\n\nSupported **remoteCredentials** operations:\n  - create a new remote credential\n  - delete an existing remote credential\n\n## OrgBrandedIDs\n\nOrgBrandedID is a hosted username and password option included with many Cirrus Identity subscriptions.\n\nSupported **OrgBrandedID** operations:\n  - create a new OBID and link its attribute collection to an existing identity\n",
+    "version": "1.1.0"
+  },
+  "paths": {
+    "/permissions": {
+      "get": {
+        "tags": [
+          "Miscellaneous"
+        ],
+        "summary": "Fetch  Permissions",
+        "description": "Return permissions for the current credential.\n\nPermissions are returned as a JSON object with a structure similar to the following:\n\n```\n{\n    \"username\": \"KQRAMJQXENIABXTZ\",\n    \"orgDomain\": \"athena-institute.net\",\n    \"environments\": {\n        \"prod\": {\n            \"permissions\": [\n                \"admin-all\",\n                \"read\",\n                \"write\",\n                \"delete\"\n            ],\n            \"customerUidKeys\": [\"athena:netId\"],\n            \"attributeAuthorities\": [\"parking\", \"foundation\"]\n        },\n        \"test\": {\n            \"permissions\": [\n                \"admin-all\",\n                \"read\",\n                \"write\",\n                \"delete\"\n            ],\n            \"customerUidKeys\": [\"athena:netId\"],\n            \"attributeAuthorities\": [\"parking\", \"foundation\"],\n        }\n    },\n    \"obid\": [\n        \"read\",\n        \"write\"\n    ]\n}\n```\n\nProperties in the permissions object:\n\n- `username`: API credential username currently being used\n- `orgDomain`: the organizational domain for which the credential was provisioned\n- `environments`: there will be two environments listed here, `test` and `prod`\n  - `environments.<environment>.permissions`: an array of permissions in the specified identity environment:\n    - `admin-all`: API credential has all available identity record permissions, including permissions introduced in the future\n    - `read`: API credential has read access to identity records\n    - `write`: API credential has write access (create/modify) to identity records\n  - `environments.<environment>.customerUidKeys`: an array of customer-defined UID keys which the API credential may use when creating identities. Please contact Cirrus Identity Support for additional information.\n  - `environments.<environment>.attributeAuthorities`: an array of attribute authority identifiers which the API credential may use when creating identities or creating/modifying attribute collections. Please contact Cirrus Identity Support for additional information.\n- `obid`: an array of permissions for OBID accounts. These permissions apply in both the `test` and `prod` environments:\n  - `read`: API credential has read access to OBID account attribute collections\n  - `write`: API credential may auto-create an OBID account at identity creation time, or create an OBID account for a pre-existing identity",
+        "operationId": "fetch_permissions_permissions_get",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentitiesApiUserPermissionsModel"
+                },
+                "example": {
+                  "username": "KQRAMJQXENIABXTZ",
+                  "orgDomain": "athena-institute.net",
+                  "environments": {
+                    "prod": {
+                      "permissions": [
+                        "admin-all",
+                        "read",
+                        "write"
+                      ],
+                      "customerUidKeys": [
+                        "athena:netId"
+                      ],
+                      "attributeAuthorities": [
+                        "parking",
+                        "foundation"
+                      ]
+                    },
+                    "test": {
+                      "permissions": [
+                        "admin-all",
+                        "read",
+                        "write"
+                      ],
+                      "customerUidKeys": [
+                        "athena:netId"
+                      ],
+                      "attributeAuthorities": [
+                        "parking",
+                        "foundation"
+                      ]
+                    }
+                  },
+                  "obid": [
+                    "read",
+                    "write"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "not authorized"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "database error: ..."
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBasic": []
+          }
+        ]
+      }
+    },
+    "/list/{environment}": {
+      "get": {
+        "tags": [
+          "Identities"
+        ],
+        "summary": "List  Identities",
+        "description": "List all identity records for a specific environment (`test` or `prod`).",
+        "operationId": "list_identities_list__environment__get",
+        "security": [
+          {
+            "HTTPBasic": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "environment",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/IdentityEnvironment",
+              "description": "identity environment"
+            },
+            "description": "identity environment"
+          },
+          {
+            "name": "page_idx",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "requested page index",
+              "default": 1,
+              "title": "Page Idx"
+            },
+            "description": "requested page index"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "description": "requested number of items per page",
+              "default": 10,
+              "title": "Page Size"
+            },
+            "description": "requested number of items per page"
+          },
+          {
+            "name": "sort_key",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/IdentityListSortKey",
+              "description": "sort key",
+              "enum": [
+                "cirrusUid",
+                "sn",
+                "givenName",
+                "mail",
+                "createTime",
+                "lastUpdateTime"
+              ],
+              "default": "createTime"
+            },
+            "description": "sort key"
+          },
+          {
+            "name": "sort_order",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/IdentityListSortOrder",
+              "description": "sort order",
+              "default": "asc"
+            },
+            "description": "sort order"
+          },
+          {
+            "name": "search_term",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "optional search term",
+              "examples": [
+                "hugohail@example.edu"
+              ],
+              "title": "Search Term"
+            },
+            "description": "optional search term"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_IdentityModelBase_"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "not authorized"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "database error: ..."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/list/byAttributeCollection/{environment}": {
+      "get": {
+        "tags": [
+          "Identities"
+        ],
+        "summary": "List  Identities  By  Attr  Collection",
+        "description": "List all identity records associated with a specific `attributeCollectionAuthority` (e.g., records containing an\nalumni attribute collection), or a combination of `attributeCollectionAuthority` and `uid` (e.g., find the alumni record\nwith alumni uid of '1234567').",
+        "operationId": "list_identities_by_attr_collection_list_byAttributeCollection__environment__get",
+        "security": [
+          {
+            "HTTPBasic": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "environment",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/IdentityEnvironment",
+              "description": "identity environment"
+            },
+            "description": "identity environment"
+          },
+          {
+            "name": "attributeAuthority",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "attribute authority identitifer",
+              "title": "Attributeauthority"
+            },
+            "description": "attribute authority identitifer"
+          },
+          {
+            "name": "attributeAuthorityUid",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "unique UID assigned by attribute authority",
+              "title": "Attributeauthorityuid"
+            },
+            "description": "unique UID assigned by attribute authority"
+          },
+          {
+            "name": "page_idx",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page Idx"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "default": 10,
+              "title": "Page Size"
+            }
+          },
+          {
+            "name": "sort_key",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/IdentityListSortKey",
+              "default": "createTime"
+            }
+          },
+          {
+            "name": "sort_order",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/IdentityListSortOrder",
+              "default": "asc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_IdentityModel_"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "not authorized"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "database error: ..."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/search/{environment}/{searchTerm}": {
+      "get": {
+        "tags": [
+          "Identities"
+        ],
+        "summary": "Search  Identities",
+        "description": "List `cirrusUid` values for identity records matching search term. Search includes attribute collections.",
+        "operationId": "search_identities_search__environment___searchTerm__get",
+        "security": [
+          {
+            "HTTPBasic": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "environment",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/IdentityEnvironment",
+              "description": "identity environment"
+            },
+            "description": "identity environment"
+          },
+          {
+            "name": "searchTerm",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "term to use in search; will be sub-string matched against name and email fields in identity and linked attributeCollections",
+              "title": "Searchterm"
+            },
+            "description": "term to use in search; will be sub-string matched against name and email fields in identity and linked attributeCollections"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "title": "Response Search Identities Search  Environment   Searchterm  Get"
+                },
+                "example": [
+                  "2ca73926-1c6a-44e9-8fc1-6c0c835d4a15",
+                  "2d615256-c822-4435-bf38-d36ba3c0f6c4",
+                  "9b8dadb8-62c1-4461-a4d7-2201a1cac407"
+                ]
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "not authorized"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "database error: ..."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fetch/{cirrusUid}": {
+      "get": {
+        "tags": [
+          "Identities"
+        ],
+        "summary": "Fetch  Identity",
+        "description": "Retrieve a single identity record by `cirrusUid`.",
+        "operationId": "fetch_identity_fetch__cirrusUid__get",
+        "security": [
+          {
+            "HTTPBasic": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "cirrusUid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "`cirrusUid` of identity record",
+              "title": "Cirrusuid"
+            },
+            "description": "`cirrusUid` of identity record"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityModel"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "not authorized"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "record not found"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "database error: ..."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/create/{environment}": {
+      "post": {
+        "tags": [
+          "Identities"
+        ],
+        "summary": "Create  Identity",
+        "description": "Create an identity record, including optional additions as permitted for your credential:\n  - `obid` - Create an OrgBrandedID sign-in credential for the identity, inviting the user to set a password for it, e.g.:\n    ```\n    \"obid\": true\n    ```\n  - `quiet` - Suppress any user-facing emails that might be triggered as a result of account creation -  e.g., an OrgBrandedID account setup email\n    ```\n    \"quiet\": true\n    ```\n  - `attributeCollections` - Create one or more authorized types of attribute collections for the identity, e.g.:\n    ```\n    \"attributeCollections\": [\n        {\n            \"attributeCollectionAuthority\": \"alumni\",\n            \"uid\": \"al-12345\",\n            \"attributes\": {\n                \"alumniId\": [\n                    \"al-12345\"\n                ],\n                \"givenName\": [\n                    \"Alice\"\n                ],\n                \"sn\": [\n                    \"Arcus\"\n                ]\n            }\n        }\n    ]\n    ```\n  - `remoteCredentials` - Create one or more remote credentials for the identity, e.g.:\n    ```\n    \"remoteCredentials\": [\n        {\n            \"remoteCredentialAuthority\": \"https://shib.athena-institute.net/idp/shibboleth\",\n            \"uid\": \"hugohail123\"\n        }\n    ]\n    ```\n  - `customerUidGen` - Auto-generate an identifier with a format customized to your organization, e.g.:\n    ```\n    \"customerUidGen\": \"athenaCustomId\"\n    ```",
+        "operationId": "create_identity_create__environment__post",
+        "security": [
+          {
+            "HTTPBasic": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "environment",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/IdentityEnvironment",
+              "description": "identity environment"
+            },
+            "description": "identity environment"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdentityCreateInput",
+                "examples": [
+                  {
+                    "mail": "aarcus@athena-institute.net",
+                    "givenName": "Alice",
+                    "sn": "Arcus",
+                    "obid": false,
+                    "quiet": false,
+                    "allowDuplicateEmail": false
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityModel"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "not authorized"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Email Conflict": {
+                    "value": {
+                      "detail": "identity record(s) for email \"user@domain.edu\" already exist: c2a34150-8f43-4f52-9601-3e7518ef0f34"
+                    }
+                  },
+                  "OBID Conflict": {
+                    "value": {
+                      "detail": "OBID Error: account for \"user@domain.edu\" exists and is linked to other identity records: c2a34150-8f43-4f52-9601-3e7518ef0f34"
+                    }
+                  },
+                  "AttributeCollection Conflict": {
+                    "value": {
+                      "detail": "attribute collection for (authority = \"sorId\", uid = \"sorUid\") already exists for identity UID = \"60ebb104-e6de-481e-aeed-b9f53083d05b\""
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "database error: ..."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/modify/{cirrusUid}": {
+      "patch": {
+        "tags": [
+          "Identities"
+        ],
+        "summary": "Modify  Identity",
+        "description": "Modify core attributes of identity record.\n\nThe attributes that may be modified are:\n\n- `givenName`\n- `sn`\n- `mail`\n\nAny combination of these attributes may be provided; only provided attribute values will be updated. Attributes\nwith a value of `null` will be ignored (treated the same as omitting them).\n\nIf the `mail` attribute value is present on another identity in the same environment, a `409 Conflict` error will\nbe returned. If you wish to override this behavior, and allow duplicate email values, pass `true` for the boolean\nparameter, `allowDuplicateEmail`.\n\nThe updated identity record is returned upon success.",
+        "operationId": "modify_identity_modify__cirrusUid__patch",
+        "security": [
+          {
+            "HTTPBasic": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "cirrusUid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "`cirrusUid` of identity record",
+              "title": "Cirrusuid"
+            },
+            "description": "`cirrusUid` of identity record"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdentityModifyInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityModel"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "not authorized"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "record not found"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Email Conflict": {
+                    "value": {
+                      "detail": "identity record(s) for email \"user@domain.edu\" already exist: c2a34150-8f43-4f52-9601-3e7518ef0f34"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "database error: ..."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/attributeCollections/create/{cirrusUid}": {
+      "post": {
+        "tags": [
+          "Attribute Collections"
+        ],
+        "summary": "Create  Attribute  Collection",
+        "description": "Create a new attribute collection under an authorized authority for an existing identity record.",
+        "operationId": "create_attribute_collection_attributeCollections_create__cirrusUid__post",
+        "security": [
+          {
+            "HTTPBasic": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "cirrusUid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "`cirrusUid` of identity record",
+              "title": "Cirrusuid"
+            },
+            "description": "`cirrusUid` of identity record"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AttributeCollectionInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttributeCollectionCreateOrModifyOutput"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "not authorized"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "record not found"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "record already exists"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "database error: ..."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/attributeCollections/modify/{cirrusUid}": {
+      "put": {
+        "tags": [
+          "Attribute Collections"
+        ],
+        "summary": "Modify  Attribute  Collection",
+        "description": "Modify a specific attribute collection under an authorized authority for an identity record.",
+        "operationId": "modify_attribute_collection_attributeCollections_modify__cirrusUid__put",
+        "security": [
+          {
+            "HTTPBasic": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "cirrusUid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "`cirrusUid` of identity record",
+              "title": "Cirrusuid"
+            },
+            "description": "`cirrusUid` of identity record"
+          },
+          {
+            "name": "overwrite",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "completely overwrite attributes (`true`) or merge (default, `false`)",
+              "default": false,
+              "title": "Overwrite"
+            },
+            "description": "completely overwrite attributes (`true`) or merge (default, `false`)"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AttributeCollectionInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttributeCollectionCreateOrModifyOutput"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "not authorized"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "record not found"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "database error: ..."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/attributeCollections/delete/{cirrusUid}": {
+      "delete": {
+        "tags": [
+          "Attribute Collections"
+        ],
+        "summary": "Delete  Attribute  Collection",
+        "description": "Delete a specific attribute collection under an authorized authority from an identity record.",
+        "operationId": "delete_attribute_collection_attributeCollections_delete__cirrusUid__delete",
+        "security": [
+          {
+            "HTTPBasic": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "cirrusUid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "`cirrusUid` of identity record",
+              "title": "Cirrusuid"
+            },
+            "description": "`cirrusUid` of identity record"
+          },
+          {
+            "name": "attributeAuthority",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "identifier of attribute collection authority",
+              "title": "Attributeauthority"
+            },
+            "description": "identifier of attribute collection authority"
+          },
+          {
+            "name": "attributeAuthorityUid",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "unique identifier for attribute collection",
+              "title": "Attributeauthorityuid"
+            },
+            "description": "unique identifier for attribute collection"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "not authorized"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "record not found"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "database error: ..."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/remoteCredentials/create/{cirrusUid}": {
+      "post": {
+        "tags": [
+          "Remote Credentials"
+        ],
+        "summary": "Create  Remote  Credential",
+        "description": "Create a new remote credential under an existing identity record.",
+        "operationId": "create_remote_credential_remoteCredentials_create__cirrusUid__post",
+        "security": [
+          {
+            "HTTPBasic": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "cirrusUid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "`cirrusUid` of identity record",
+              "title": "Cirrusuid"
+            },
+            "description": "`cirrusUid` of identity record"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RemoteCredentialInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttributeCollectionCreateOrModifyOutput"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "not authorized"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "record not found"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "record already exists"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "database error: ..."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/remoteCredentials/delete/{cirrusUid}": {
+      "delete": {
+        "tags": [
+          "Remote Credentials"
+        ],
+        "summary": "Delete  Remote  Credential",
+        "description": "Delete a specific remote credential under an identity record.",
+        "operationId": "delete_remote_credential_remoteCredentials_delete__cirrusUid__delete",
+        "security": [
+          {
+            "HTTPBasic": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "cirrusUid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "`cirrusUid` of identity record",
+              "title": "Cirrusuid"
+            },
+            "description": "`cirrusUid` of identity record"
+          },
+          {
+            "name": "remoteCredentialAuthority",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "identifier of remote credential authority",
+              "title": "Remotecredentialauthority"
+            },
+            "description": "identifier of remote credential authority"
+          },
+          {
+            "name": "remoteCredentialUid",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "unique identifier at remote credential authority",
+              "title": "Remotecredentialuid"
+            },
+            "description": "unique identifier at remote credential authority"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "not authorized"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "record not found"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "database error: ..."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/obids/create/{cirrusUid}": {
+      "post": {
+        "tags": [
+          "Obid"
+        ],
+        "summary": "Create  Obid",
+        "description": "Create a new OrgBrandedID sign-in credential for an existing identity record, sending an onboarding email to the\ndesignated email address. The `quiet` flag can be used to suppress the OrgBrandedID account setup email.",
+        "operationId": "create_obid_obids_create__cirrusUid__post",
+        "security": [
+          {
+            "HTTPBasic": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "cirrusUid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "`cirrusUid` of identity record",
+              "title": "Cirrusuid"
+            },
+            "description": "`cirrusUid` of identity record"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrgBrandedIdAccountCreateInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttributeCollectionCreateOrModifyOutput"
+                },
+                "example": {
+                  "cirrusUid": "a82113d1-7072-494f-91c5-be3dbe2db08d",
+                  "attributeCollection": {
+                    "attributeCollectionAuthority": "https://athena-guest.idp.cirrusidentity.com/idp",
+                    "uid": "cuid-8a37d4f4-d09f-4ac5-bf67-9e38f987bf1c",
+                    "attributes": {
+                      "urn:oid:2.5.4.4": [
+                        "Arcus"
+                      ],
+                      "urn:oid:0.9.2342.19200300.100.1.3": [
+                        "aarcus@athena-institute.net"
+                      ],
+                      "urn:oid:2.16.840.1.113730.3.1.241": [
+                        "Alice Arcus"
+                      ],
+                      "urn:oid:2.5.4.3": [
+                        "Alice Arcus"
+                      ],
+                      "urn:oid:0.9.2342.19200300.100.1.1": [
+                        "8a37d4f4-d09f-4ac5-bf67-9e38f987bf1c"
+                      ],
+                      "urn:oid:2.5.4.42": [
+                        "Alice"
+                      ],
+                      "scope": [
+                        "athena-guest.idp.cirrusidentity.com"
+                      ],
+                      "urn:oid:1.3.6.1.4.1.5923.1.1.1.6": [
+                        "8a37d4f4-d09f-4ac5-bf67-9e38f987bf1c@athena-guest.idp.cirrusidentity.com"
+                      ]
+                    },
+                    "createTime": "2025-10-31T19:12:08+00:00",
+                    "lastUpdateTime": "2025-10-31T19:12:08+00:00",
+                    "attributeCollectionAuthorityType": "obid"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "not authorized"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "record not found"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "OBID Error: Account for [user@domain.edu] exists and cannot be created again."
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "database error: ..."
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AttributeCollectionAuthorityType": {
+        "type": "string",
+        "enum": [
+          "sor",
+          "obid",
+          "gateway"
+        ],
+        "title": "AttributeCollectionAuthorityType",
+        "description": "enum for deployment patterns"
+      },
+      "AttributeCollectionCreateOrModifyOutput": {
+        "properties": {
+          "cirrusUid": {
+            "type": "string",
+            "title": "Cirrusuid",
+            "description": "`cirrusUid` of identity record",
+            "examples": [
+              "a82113d1-7072-494f-91c5-be3dbe2db08d"
+            ]
+          },
+          "attributeCollection": {
+            "$ref": "#/components/schemas/AttributeCollectionOutput",
+            "description": "created/modified attributeCollection"
+          }
+        },
+        "type": "object",
+        "required": [
+          "cirrusUid",
+          "attributeCollection"
+        ],
+        "title": "AttributeCollectionCreateOrModifyOutput",
+        "description": "wrapper for returning attribute collections along with cirrusUid"
+      },
+      "AttributeCollectionInput": {
+        "properties": {
+          "attributeCollectionAuthority": {
+            "type": "string",
+            "title": "Attributecollectionauthority",
+            "description": "identifier of attribute collection authority",
+            "examples": [
+              "AthenaID"
+            ]
+          },
+          "uid": {
+            "type": "string",
+            "title": "Uid",
+            "description": "unique identifier for attribute authority collection instance",
+            "examples": [
+              "ai-12345"
+            ]
+          },
+          "attributes": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Attributes",
+            "description": "object of attribute keys and list of values",
+            "default": {},
+            "examples": [
+              {
+                "athenaId": [
+                  "ai-12345"
+                ],
+                "givenName": [
+                  "Alice"
+                ],
+                "sn": [
+                  "Arcus"
+                ]
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "attributeCollectionAuthority",
+          "uid"
+        ],
+        "title": "AttributeCollectionInput",
+        "description": "attribute collection model"
+      },
+      "AttributeCollectionOutput": {
+        "properties": {
+          "attributeCollectionAuthority": {
+            "type": "string",
+            "title": "Attributecollectionauthority",
+            "description": "identifier of attribute collection authority",
+            "examples": [
+              "AthenaID"
+            ]
+          },
+          "uid": {
+            "type": "string",
+            "title": "Uid",
+            "description": "unique identifier for attribute authority collection instance",
+            "examples": [
+              "ai-12345"
+            ]
+          },
+          "attributes": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Attributes",
+            "description": "object of attribute keys and list of values",
+            "default": {},
+            "examples": [
+              {
+                "athenaId": [
+                  "ai-12345"
+                ],
+                "givenName": [
+                  "Alice"
+                ],
+                "sn": [
+                  "Arcus"
+                ]
+              }
+            ]
+          },
+          "createTime": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Createtime",
+            "description": "attribute collection creation timestamp"
+          },
+          "lastUpdateTime": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Lastupdatetime",
+            "description": "attribute collection last update timestamp"
+          },
+          "credentialLastUsed": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Credentiallastused",
+            "description": "last time used, if attribute collection represents a credential"
+          },
+          "attributeCollectionAuthorityType": {
+            "$ref": "#/components/schemas/AttributeCollectionAuthorityType",
+            "description": "type of attribute collection authority",
+            "readOnly": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "attributeCollectionAuthority",
+          "uid",
+          "createTime",
+          "lastUpdateTime",
+          "attributeCollectionAuthorityType"
+        ],
+        "title": "AttributeCollectionOutput",
+        "description": "output attribute collection model"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "IdentitiesApiUserPermissionsModel": {
+        "properties": {
+          "username": {
+            "type": "string",
+            "title": "Username"
+          },
+          "orgDomain": {
+            "type": "string",
+            "title": "Orgdomain"
+          },
+          "environments": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/LinkGroup"
+            },
+            "type": "object",
+            "title": "Environments",
+            "description": "Map of linkgroup names to linkgroup permissions",
+            "default": {}
+          },
+          "obid": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Obid",
+            "description": "List of OBID permissions",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "username",
+          "orgDomain"
+        ],
+        "title": "IdentitiesApiUserPermissionsModel",
+        "description": "model for user/permissions model (for identities API)"
+      },
+      "IdentityCreateInput": {
+        "properties": {
+          "mail": {
+            "type": "string",
+            "format": "email",
+            "title": "Mail",
+            "description": "email address",
+            "examples": [
+              "aarcus@athena-institute.net"
+            ]
+          },
+          "givenName": {
+            "type": "string",
+            "maxLength": 255,
+            "title": "Givenname",
+            "description": "given name",
+            "examples": [
+              "Alice"
+            ]
+          },
+          "sn": {
+            "type": "string",
+            "maxLength": 255,
+            "title": "Sn",
+            "description": "surname",
+            "examples": [
+              "Arcus"
+            ]
+          },
+          "customerUidGen": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Customeruidgen",
+            "description": "optional Cirrus-provided key for generating customer-defined UIDs"
+          },
+          "obid": {
+            "type": "boolean",
+            "title": "Obid",
+            "description": "whether to create/link an OrgBrandedID account for `mail` value",
+            "default": false
+          },
+          "quiet": {
+            "type": "boolean",
+            "title": "Quiet",
+            "description": "suppress any user-facing emails that might be triggered as a result of account creation - e.g., an OrgBrandedID account setup email",
+            "default": false
+          },
+          "allowDuplicateEmail": {
+            "type": "boolean",
+            "title": "Allowduplicateemail",
+            "description": "whether to allow creation of an identity record with an email address already associated with another identity",
+            "default": false
+          },
+          "attributeCollections": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/AttributeCollectionInput"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attributecollections",
+            "description": "optional list of attribute collections to create and link to identity record"
+          },
+          "remoteCredentials": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/RemoteCredentialInput"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Remotecredentials",
+            "description": "optional list of remote credential (authority, uid) pairs to create and link to identity record"
+          }
+        },
+        "type": "object",
+        "required": [
+          "mail",
+          "givenName",
+          "sn"
+        ],
+        "title": "IdentityCreateInput",
+        "description": "model for creating a new identity record"
+      },
+      "IdentityEnvironment": {
+        "type": "string",
+        "enum": [
+          "test",
+          "prod"
+        ],
+        "title": "IdentityEnvironment",
+        "description": "enum for allowed linking environments"
+      },
+      "IdentityListSortKey": {
+        "type": "string",
+        "enum": [
+          "id",
+          "cirrusUid",
+          "sn",
+          "givenName",
+          "mail",
+          "createTime",
+          "lastUpdateTime"
+        ],
+        "title": "IdentityListSortKey",
+        "description": "enum for allowed fields to sort identity list by"
+      },
+      "IdentityListSortOrder": {
+        "type": "string",
+        "enum": [
+          "asc",
+          "desc"
+        ],
+        "title": "IdentityListSortOrder",
+        "description": "enum for allowed orders to sort identity list by"
+      },
+      "IdentityModel": {
+        "properties": {
+          "cirrusUid": {
+            "type": "string",
+            "title": "Cirrusuid",
+            "description": "`cirrusUid` of identity record",
+            "examples": [
+              "a82113d1-7072-494f-91c5-be3dbe2db08d"
+            ]
+          },
+          "mail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mail",
+            "description": "email address",
+            "examples": [
+              "aarcus@athena-institite.net"
+            ]
+          },
+          "givenName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Givenname",
+            "description": "given name",
+            "examples": [
+              "Alice"
+            ]
+          },
+          "sn": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sn",
+            "description": "Surname",
+            "examples": [
+              "Arcus"
+            ]
+          },
+          "createTime": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Createtime",
+            "description": "identity creation timestamp"
+          },
+          "lastUpdateTime": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Lastupdatetime",
+            "description": "identity last update timestamp"
+          },
+          "attributeCollections": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/AttributeCollectionOutput"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attributecollections",
+            "description": "list of `AttributeCollectionOutput`"
+          }
+        },
+        "type": "object",
+        "required": [
+          "cirrusUid",
+          "createTime",
+          "lastUpdateTime"
+        ],
+        "title": "IdentityModel",
+        "description": "full identity model",
+        "examples": [
+          {
+            "attributeCollections": [
+              {
+                "attributeCollectionAuthority": "https://athena-guest.idp.cirrusidentity.com/idp",
+                "attributeCollectionAuthorityType": "obid",
+                "attributes": {
+                  "scope": [
+                    "athena-guest.idp.cirrusidentity.com"
+                  ],
+                  "urn:oid:0.9.2342.19200300.100.1.1": [
+                    "8a37d4f4-d09f-4ac5-bf67-9e38f987bf1c"
+                  ],
+                  "urn:oid:0.9.2342.19200300.100.1.3": [
+                    "aarcus@athena-institute.net"
+                  ],
+                  "urn:oid:1.3.6.1.4.1.5923.1.1.1.6": [
+                    "8a37d4f4-d09f-4ac5-bf67-9e38f987bf1c@athena-guest.idp.cirrusidentity.com"
+                  ],
+                  "urn:oid:2.16.840.1.113730.3.1.241": [
+                    "Alice Arcus"
+                  ],
+                  "urn:oid:2.5.4.3": [
+                    "Alice Arcus"
+                  ],
+                  "urn:oid:2.5.4.4": [
+                    "Arcus"
+                  ],
+                  "urn:oid:2.5.4.42": [
+                    "Alice"
+                  ]
+                },
+                "createTime": "2025-10-31T19:12:08+00:00",
+                "credentialLastUsed": "2026-06-04T17:16:35+00:00",
+                "lastUpdateTime": "2025-10-31T19:12:08+00:00",
+                "uid": "cuid-8a37d4f4-d09f-4ac5-bf67-9e38f987bf1c"
+              },
+              {
+                "attributeCollectionAuthority": "AthenaID",
+                "attributeCollectionAuthorityType": "sor",
+                "attributes": {
+                  "athenaId": [
+                    "ai-12345"
+                  ],
+                  "givenName": [
+                    "Alice"
+                  ],
+                  "sn": [
+                    "Arcus"
+                  ]
+                },
+                "createTime": "2025-11-02T01:24:00+00:00",
+                "lastUpdateTime": "2025-11-02T01:24:00+00:00",
+                "uid": "ai-12345"
+              }
+            ],
+            "cirrusUid": "a82113d1-7072-494f-91c5-be3dbe2db08d",
+            "createTime": "2025-10-31T19:12:07+00:00",
+            "givenName": "Alice",
+            "lastUpdateTime": "2025-10-31T19:12:07+00:00",
+            "mail": "aarcus@athena-institute.net",
+            "sn": "Arcus"
+          }
+        ]
+      },
+      "IdentityModelBase": {
+        "properties": {
+          "cirrusUid": {
+            "type": "string",
+            "title": "Cirrusuid",
+            "description": "`cirrusUid` of identity record",
+            "examples": [
+              "a82113d1-7072-494f-91c5-be3dbe2db08d"
+            ]
+          },
+          "mail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mail",
+            "description": "email address",
+            "examples": [
+              "aarcus@athena-institite.net"
+            ]
+          },
+          "givenName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Givenname",
+            "description": "given name",
+            "examples": [
+              "Alice"
+            ]
+          },
+          "sn": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sn",
+            "description": "Surname",
+            "examples": [
+              "Arcus"
+            ]
+          },
+          "createTime": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Createtime",
+            "description": "identity creation timestamp"
+          },
+          "lastUpdateTime": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Lastupdatetime",
+            "description": "identity last update timestamp"
+          }
+        },
+        "type": "object",
+        "required": [
+          "cirrusUid",
+          "createTime",
+          "lastUpdateTime"
+        ],
+        "title": "IdentityModelBase",
+        "description": "base identity model",
+        "examples": [
+          {
+            "cirrusUid": "a82113d1-7072-494f-91c5-be3dbe2db08d",
+            "createTime": "2025-10-31T19:12:07+00:00",
+            "givenName": "Alice",
+            "lastUpdateTime": "2025-10-31T19:12:07+00:00",
+            "mail": "aarcus@athena-institute.net",
+            "sn": "Arcus"
+          }
+        ]
+      },
+      "IdentityModifyInput": {
+        "properties": {
+          "mail": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "email"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mail",
+            "description": "email address",
+            "examples": [
+              "aarcus@athena-institute.net"
+            ]
+          },
+          "givenName": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Givenname",
+            "description": "given name",
+            "examples": [
+              "Alice"
+            ]
+          },
+          "sn": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sn",
+            "description": "surname",
+            "examples": [
+              "Arcus"
+            ]
+          },
+          "allowDuplicateEmail": {
+            "type": "boolean",
+            "title": "Allowduplicateemail",
+            "description": "whether to allow creation of an identity record with an email address already associated with another identity",
+            "default": false
+          }
+        },
+        "type": "object",
+        "title": "IdentityModifyInput",
+        "description": "model for modifying base properties on existing identity record"
+      },
+      "LinkGroup": {
+        "properties": {
+          "permissions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Permissions",
+            "description": "List of permissions for org + link group",
+            "default": []
+          },
+          "customerUidKeys": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Customeruidkeys",
+            "description": "List of Customer UID `tenantShortName:attributeCollectionAuthority` pairs",
+            "default": []
+          },
+          "attributeAuthorities": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Attributeauthorities",
+            "description": "List of Customer attribute authorities",
+            "default": []
+          }
+        },
+        "type": "object",
+        "title": "LinkGroup",
+        "description": "linkgroup model"
+      },
+      "OrgBrandedIdAccountCreateInput": {
+        "properties": {
+          "givenName": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Givenname",
+            "description": "first name",
+            "examples": [
+              "Alice"
+            ]
+          },
+          "surname": {
+            "type": "string",
+            "maxLength": 255,
+            "title": "Surname",
+            "description": "last name",
+            "examples": [
+              "Arcus"
+            ]
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email",
+            "description": "email address",
+            "examples": [
+              "aarcus@athena-institute.net"
+            ]
+          },
+          "quiet": {
+            "type": "boolean",
+            "title": "Quiet",
+            "description": "suppress OrgBrandedID account setup email",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "surname",
+          "email"
+        ],
+        "title": "OrgBrandedIdAccountCreateInput",
+        "description": "model for creating a new OBID account"
+      },
+      "Page_IdentityModelBase_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/IdentityModelBase"
+            },
+            "type": "array",
+            "title": "Items",
+            "description": "list of items on this page"
+          },
+          "total_items": {
+            "type": "integer",
+            "minimum": 0,
+            "title": "Total Items",
+            "description": "total number of items"
+          },
+          "page_cnt": {
+            "type": "integer",
+            "minimum": 0,
+            "title": "Page Cnt",
+            "description": "total number of pages"
+          },
+          "page_size": {
+            "type": "integer",
+            "minimum": 0,
+            "title": "Page Size",
+            "description": "number of items on this page"
+          },
+          "page_idx": {
+            "type": "integer",
+            "minimum": 1,
+            "title": "Page Idx",
+            "description": "current page index"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total_items",
+          "page_cnt",
+          "page_size",
+          "page_idx"
+        ],
+        "title": "Page[IdentityModelBase]"
+      },
+      "Page_IdentityModel_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/IdentityModel"
+            },
+            "type": "array",
+            "title": "Items",
+            "description": "list of items on this page"
+          },
+          "total_items": {
+            "type": "integer",
+            "minimum": 0,
+            "title": "Total Items",
+            "description": "total number of items"
+          },
+          "page_cnt": {
+            "type": "integer",
+            "minimum": 0,
+            "title": "Page Cnt",
+            "description": "total number of pages"
+          },
+          "page_size": {
+            "type": "integer",
+            "minimum": 0,
+            "title": "Page Size",
+            "description": "number of items on this page"
+          },
+          "page_idx": {
+            "type": "integer",
+            "minimum": 1,
+            "title": "Page Idx",
+            "description": "current page index"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total_items",
+          "page_cnt",
+          "page_size",
+          "page_idx"
+        ],
+        "title": "Page[IdentityModel]"
+      },
+      "RemoteCredentialInput": {
+        "properties": {
+          "remoteCredentialAuthority": {
+            "type": "string",
+            "title": "Remotecredentialauthority",
+            "description": "identifier of remote credential authority",
+            "examples": [
+              "https://athena-institute.net/idp",
+              "urn:mace:incommon:athena-institute.net"
+            ]
+          },
+          "uid": {
+            "type": "string",
+            "title": "Uid",
+            "description": "unique identifier at remote credential authority",
+            "examples": [
+              "ai-12345"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "remoteCredentialAuthority",
+          "uid"
+        ],
+        "title": "RemoteCredentialInput",
+        "description": "remote credential model"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBasic": {
+        "type": "http",
+        "scheme": "basic"
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "/identities/v1"
+    }
+  ]
+}
