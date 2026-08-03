@@ -41,6 +41,10 @@ export default defineConfig({
               group: "Standalone Bridge",
               pages: ["standalone_bridge/*"],
             },
+            {
+              group: "Configuration Notes",
+              pages: ["bridge_notes/*"],
+            },
           ],
         }),
       },
