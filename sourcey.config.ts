@@ -46,12 +46,12 @@ export default defineConfig({
       },
       {
         tab: "Identities API Reference",
-        slug: "api",
+        slug: "identities-api",
         source: openapi("./identity.json"),
       },
       {
         tab: "Log API Reference",
-        slug: "api",
+        slug: "log-api",
         source: openapi("./log.json"),
       },
     ],
