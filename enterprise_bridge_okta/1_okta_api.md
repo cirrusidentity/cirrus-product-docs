@@ -1,5 +1,5 @@
 ---
-title: API Access
+title: Okta API Access
 description: How to grant read-only permissions.
 ---
 

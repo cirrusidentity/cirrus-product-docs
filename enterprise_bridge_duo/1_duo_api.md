@@ -1,5 +1,5 @@
 ---
-title: API Access
+title: Duo API Access
 description: How to grant read-only permissions.
 ---
 

@@ -1,5 +1,5 @@
 ---
-title: Authentication Profile
+title: Entra ID Authentication Profiles
 description: Creating an authentication profile to integrate Bridge.
 ---
 
