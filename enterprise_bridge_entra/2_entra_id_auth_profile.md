@@ -51,8 +51,8 @@ The default NameID Format is transient, which means the NameID value is generate
 
 Entra ID does not support transient NameIDs, so you will need to add a claim with a Cirrus rule with the following values to instruct the Bridge to send a transient NameID.
 
-**Name**: cirrus.nameIdFormat
-**Value**: urn:oasis:names:tc:SAML:2.0:nameid-format:transient
+- **Name**: `cirrus.nameIdFormat`
+- **Value**: `urn:oasis:names:tc:SAML:2.0:nameid-format:transient`
 
 ### Default Profile: Research & Scholarship Attributes 
 
@@ -74,8 +74,8 @@ If you are using another source for MFA, such as Duo, you may need to manually a
 
 In this case, add an additional attribute with the following name and value, 
 
-- **Name**: cirrus.rule.authnContext
-- **Value**: https://refeds.org/profile/mfa
+- **Name**: `cirrus.rule.authnContext`
+- **Value**: `https://refeds.org/profile/mfa`
 
 :::note
 By adding this attribute, you are asserting that all users that use this application have performed MFA.
