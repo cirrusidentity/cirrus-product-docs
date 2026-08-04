@@ -17,7 +17,7 @@ An authentication profile includes a NameID format and value, set of attributes,
 1. Log in to Okta & navigate to Applications.
    Select "Create app integration" (SAML 2.0).
 2. Choose a name for your application. 
-   For the default application, we recommend “Cirrus Default Bridge”. 
+   For the default application, we recommend "Cirrus Default Bridge". 
 3. Configure SAML parameters.
    Set the "Single Sign On URL" & "Audience URI (SP Entity ID)" provided by your implementation lead.
 4. Signing & Encryption Settings
