@@ -1,17 +1,19 @@
 ---
-title: Logout Behavior
-description: Notes on logout behavior for Cirrus Bridge.
+title: Handling Logout
+description: Notes on logout for Cirrus Bridge.
 ---
 
 Authenticated users that sign out of Cirrus Enterprise Bridge are also sent to their authentication provider to sign out, and are not returned to their initial application.
 
-## Expected Behavior From Application Requesting Logout
+## Applications Initiating Logout
 
-The application integrated with Cirrus Bridge must send a correctly-constructed logout request via the SAML or CAS protocol to Cirrus Bridge in order to initiate the process.
+Bridge-integrated applications should perform local logout as appropriate (e.g., revoking local application sessions) before making a standard logout request to the Cirrus Bridge.
 
-If an app sets its own session cookie, it is **not** revoked by initiating a logout request to Bridge.
+If an application sets its own session cookie, it is **not** revoked by initiating a logout request to Bridge.
 
-### Bridge SAML Logout Endpoints
+### SAML Applications
+
+SAML applications can initiate a SAML `LogoutRequest` to any of the following supported endpoints:
 
 :::tabs
 ::tab{title="Option 1"}
@@ -25,7 +27,9 @@ If an app sets its own session cookie, it is **not** revoked by initiating a log
 ::
 :::
 
-### Bridge CAS Logout Endpoints
+### CAS Applications
+
+CAS applications can initiate a CAS `LogoutRequest` to either of the following supported endpoints:
 
 :::tabs
 ::tab{title="Option 1"}
@@ -38,7 +42,7 @@ If an app sets its own session cookie, it is **not** revoked by initiating a log
 
 ## Expected Behavior For Enterprise Bridge
 
-Once Cirrus Bridge receives the logout request from the application, it will terminate its own session and then send a logout request to the upstream authentication provider. Behavior of logout by the upstream provider may vary slightly depending on your integrated provider's settings. 
+Once Cirrus Bridge receives the logout request from the application, it will terminate its own session and then send a logout request to the upstream authentication provider. Behavior of logout by the upstream provider may vary slightly depending on your upstream provider's settings. 
 
 :::info
 If an application is integrated with Bridge via multi-lateral federation (i.e. metadata exchange facilitated by InCommon or another federation), you **must publish the Bridge's SLO endpoint** to your federation metadata for the app to be able to correctly initiate logout.
@@ -56,4 +60,4 @@ Duo users are sent to `https://$DUO_TENANT.duosecurity.com/saml2/sp/$APP_ID/slo`
 ::
 :::
 
-Unauthenticated users either see a message saying they have been signed out, or are returned to the application making the sign out request.
+If an application makes a logout request to Bridge for a user who does not have an active authentication session, the user will either be shown a message saying they have been signed out, or are returned to the application making the logout request.
