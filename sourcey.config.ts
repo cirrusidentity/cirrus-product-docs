@@ -7,18 +7,28 @@ export default defineConfig({
     colors: {
       primary: "#106ebc",
       light: "#d8eafb", // hover states, lighter accents
-      dark: "#08385f", // pressed states, darker accents
+      dark: "#106ebc", // pressed states, darker accents
     },
     fonts: {
-      sans: "Figtree, sans-serif", // body text, headings
+      sans: "Figtree", // body text, headings
     },
   },
-  logo: "./assets/logo.png",
+  logo: {
+    light: "./assets/logo.png",        // shown in light mode
+    dark: "./assets/logo-white.png",    // shown in dark mode                  // optional: where the logo links to
+  },
+  navbar: {
+    primary: {
+      type: "button",
+      label: "Request Demo",
+      href: "https://www.cirrusidentity.com/talk-to-us",
+    },
+  },
   navigation: {
     tabs: [
       {
         tab: "Cirrus Bridge",
-        slug: "",
+        slug: "bridge",
         source: markdown({
           groups: [
             {
@@ -44,6 +54,18 @@ export default defineConfig({
             {
               group: "Configuration Notes",
               pages: ["bridge_notes/*"],
+            },
+          ],
+        }),
+      },
+      {
+        tab: "Cirrus Proxy",
+        slug: "proxy",
+        source: markdown({
+          groups: [
+            {
+              group: "Proxy Overview",
+              pages: ["bridge_overview/*"],
             },
           ],
         }),
