@@ -65,7 +65,7 @@ export default defineConfig({
           groups: [
             {
               group: "Proxy Overview",
-              pages: ["bridge_overview/*"],
+              pages: ["proxy_overview/*"],
             },
           ],
         }),
