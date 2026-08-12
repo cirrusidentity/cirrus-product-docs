@@ -67,6 +67,10 @@ export default defineConfig({
               group: "Proxy Overview",
               pages: ["proxy_overview/*"],
             },
+            {
+              group: "Authentication Integrations",
+              pages: ["proxy_authentication/*"],
+            },
           ],
         }),
       },
