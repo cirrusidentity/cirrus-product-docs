@@ -41,6 +41,10 @@ However, if your institution’s security policies require assignment, then sett
    Enter the Entity ID & Reply URL (ACS URL) provided by the Implementation Lead.
 :::
 
+:::tip
+For additional authentication profiles (Enterprise Applications), use the Entity ID(s) or entity category URL for those application(s) and **use the ACS URL from the default profile**.
+:::
+
 ## Configure Attribute Release
 
 Next, the attributes will be configured. Entra ID calls them claims. Entra ID also allows you to perform transformations to your attributes. 

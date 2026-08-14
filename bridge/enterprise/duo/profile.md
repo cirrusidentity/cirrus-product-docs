@@ -42,6 +42,10 @@ To meet the REFEDS research & scholarship entity category requirements used by I
 | Email address (mail) | urn:oid:0.9.2342.19200300.100.1.3 | Email Address |
 | eduPersonPrincipalName* | urn:oid:1.3.6.1.4.1.5923.1.1.1.6 | Username |
 
+:::tip
+For additional authentication profiles (Duo Applications), use the Entity ID(s) or entity category URL for those application(s) and **use the ACS URL from the default profile**.
+:::
+
 ### Asserting MFA
 
 For the REFEDS MFA context, your institution can assert that MFA is required for all users by sending a custom attribute:

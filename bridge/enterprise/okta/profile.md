@@ -44,6 +44,10 @@ To meet the REFEDS research & scholarship entity category requirements used by I
 | Email address (mail) | urn:oid:0.9.2342.19200300.100.1.3 | user.email |
 | eduPersonPrincipalName* | urn:oid:1.3.6.1.4.1.5923.1.1.1.6 | user.login |
 
+:::tip
+For additional authentication profiles (Okta Applications), use the Entity ID(s) or entity category URL for those application(s) and **use the ACS URL from the default profile**.
+:::
+
 ### Asserting MFA
 
 Okta can signal to the Cirrus Bridge that MFA was used if you release the “session.amr” attribute to Cirrus. 
