@@ -6,16 +6,16 @@ export default defineConfig({
     preset: "default",
     colors: {
       primary: "#106ebc",
-      light: "#d8eafb", // hover states, lighter accents
-      dark: "#106ebc", // pressed states, darker accents
+      light: "#d8eafb",
+      dark: "#106ebc",
     },
     fonts: {
-      sans: "Figtree", // body text, headings
+      sans: "Figtree",
     },
   },
   logo: {
-    light: "./assets/logo.png",        // shown in light mode
-    dark: "./assets/logo-white.png",    // shown in dark mode                  // optional: where the logo links to
+    light: "./assets/logo.png",
+    dark: "./assets/logo-white.png",
   },
   navbar: {
     primary: {
@@ -33,27 +33,27 @@ export default defineConfig({
           groups: [
             {
               group: "Bridge Overview",
-              pages: ["bridge_overview/*"],
+              pages: ["bridge/overview/introduction.md", "bridge/overview/getting-started.md"],
             },
             {
               group: "Enterprise Bridge - Entra ID",
-              pages: ["enterprise_bridge_entra/*"],
+              pages: ["bridge/enterprise/entra/*"],
             },
             {
               group: "Enterprise Bridge - Okta",
-              pages: ["enterprise_bridge_okta/*"],
+              pages: ["bridge/enterprise/okta/*"],
             },
             {
               group: "Enterprise Bridge - Duo SSO",
-              pages: ["enterprise_bridge_duo/*"],
+              pages: ["bridge/enterprise/duo/*"],
             },
             {
               group: "Standalone Bridge",
-              pages: ["standalone_bridge/*"],
+              pages: ["bridge/standalone/*"],
             },
             {
-              group: "Configuration Notes",
-              pages: ["bridge_notes/*"],
+              group: "Other Configuration",
+              pages: ["bridge/other/*"],
             },
           ],
         }),
@@ -65,11 +65,11 @@ export default defineConfig({
           groups: [
             {
               group: "Proxy Overview",
-              pages: ["proxy_overview/*"],
+              pages: ["proxy/overview/*"],
             },
             {
               group: "Authentication Integrations",
-              pages: ["proxy_authentication/*"],
+              pages: ["proxy/authentication/*"],
             },
           ],
         }),

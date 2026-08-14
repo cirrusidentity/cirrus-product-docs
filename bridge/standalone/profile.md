@@ -1,9 +1,9 @@
 ---
-title: Standalone Authentication Profiles
+title: Create Authentication Profile
 description: Integrate any SAML authentication provider.
 ---
 
-Each unique authentication profile is equivalent to its own application in your SAML authentication provider. Your Cirrus Implementation Lead will work with you to develop additional profiles & provide support for configuration.
+Standalone Bridge supports a single authentication profile, which is equivalent to an application integration in your SAML authentication provider.
 
 :::info Definition
 An authentication profile includes a NameID format and value, set of attributes, and signing & encryption settings. A typical implementation will include a default profile for SAML and one for CAS. Additional profiles can be created if required.

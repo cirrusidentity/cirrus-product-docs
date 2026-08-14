@@ -1,5 +1,5 @@
 ---
-title: Duo API Access
+title: Duo API Integration
 description: How to grant read-only permissions.
 ---
 
@@ -14,9 +14,9 @@ You must be an Duo Administrator with the "Owner" role to complete these steps.
 :::steps
 1. In the Duo SSO Admin portal, create a new application.
    Choose the type "Admin API". 
-2. Under **Details**, record the API information listed.
+2. Under Details, record the API information listed.
    You'll need all three entries.
-3. Under **Settings**, name your application.
+3. Under Settings, name your application.
    Select only the "Read" checkbox under "Grant Resource".
 :::
 

@@ -1,5 +1,5 @@
 ---
-title: Entra ID API Access
+title: Entra ID API Integration
 description: How to grant read-only permissions.
 ---
 
