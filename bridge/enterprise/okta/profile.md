@@ -48,15 +48,21 @@ To meet the REFEDS research & scholarship entity category requirements used by I
 For additional authentication profiles (Okta Applications), use the Entity ID(s) or entity category URL for those application(s) and **use the ACS URL from the default profile**.
 :::
 
-### Asserting MFA
+### Asserting REFEDS MFA Profile
 
-Okta can signal to the Cirrus Bridge that MFA was used if you release the “session.amr” attribute to Cirrus. 
+Okta can signal to the Cirrus Bridge that MFA was used if you release the **session.amr** attribute to Cirrus. 
 
 To do this, in Attribute Statements add the following attribute:
 
 - **Name**: session.amr 
 - **Format**: Unspecified
-- **Value**: session.amr 
+- **Value**: Do not enter. Leave this field blank.
+
+:::note
+Okta may be configured to only release **session.amr** as a single value.
+
+Cirrus needs the attribute to be released as multi-valued. To change this setting, you may need to make a request to Okta support to enable **SAML_SUPPORT_ARRAY_ATTRIBUTES**.
+:::
 
 ## Assign App to Okta Group
 
