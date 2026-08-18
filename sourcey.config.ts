@@ -71,6 +71,10 @@ export default defineConfig({
               group: "Authentication Integrations",
               pages: ["proxy/authentication/*"],
             },
+            {
+              group: "Application Integrations",
+              pages: ["proxy/integrations/cas/*", "proxy/integrations/oidc/*", "proxy/integrations/saml/*", "proxy/integrations/federation/*"],
+            },
           ],
         }),
       },
