@@ -16,6 +16,9 @@ Proxy can is flexible by design, and can be used in many different configuration
 :::accordion{title="Same App Used By Workforce & Customers"}
 If you have an application that's used by both your employees and customers, but want to control the login experience and use separate environments for each.
 :::
+:::accordion{title="Enabling Institutional SSO For EdTech Providers"}
+If you are an EdTech software application vendor, and want an easy pathway to support your customers' SSO providers.
+:::
 :::accordion{title="Allowing Extended Access By Retirees or Alumni"}
 If you have an app you want to allow your connected affiliate network to continue to access, but use distinct login experiences for them.
 :::
