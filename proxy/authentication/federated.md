@@ -24,7 +24,7 @@ You may use any providers registered in your national federation as well as othe
 
 To make an authentication provider available to your users of Cirrus Proxy, you must add the provider using the [Discovery](./provider-discovery.md) settings within the Cirrus Console.
 
-Once you have added a provider, no additional action is required if the provider changes its metadata; Cirrus services process those changes automatically. 
+Once you have added a provider, no additional action is required if the provider changes its metadata; Cirrus processes those changes automatically. 
 
 ### Attribute Releases From Federated Providers
 

@@ -52,7 +52,7 @@ This is enabled by default for these attributes:
 - eduPersonPrincipalName
 - eduPersonScopedAffilitation
 
-### Ends With Scope Checking
+### Ends-With Scope Checking
 
 In some scenarios, an application uses email address as its internal identifier; Proxy can perform scope checking on the email address. In some organizations, the user's email addresses may contain subdomains. "Example University" may have a scope of `example.edu` but email address domains like `org.example.edu`. 
 
