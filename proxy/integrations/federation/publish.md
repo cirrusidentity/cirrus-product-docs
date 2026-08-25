@@ -1,4 +1,4 @@
 ---
 title: Federating Connected Applications
-description: What is Cirrus Proxy?
+description: Registering Proxy with a federation.
 ---

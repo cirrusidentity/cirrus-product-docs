@@ -5,13 +5,13 @@ description: Adjust Proxy behavior for specific scenarios.
 
 ## Discovery Bypass
 
-In some situations, your application may already know the upstream authentication provider that Proxy should use, and you want the user to bypass the discovery normally performed. 
+In some situations, your application may already know the upstream authentication provider that Proxy should use, and you want the user to bypass the discovery screen. 
 
 To do so, we will construct a URL for the Proxy that contains the following information:
 
 1. The application's Entity ID
 2. Relay State (the path on the app side where a user should end up after authenticating)
-3. The upstream authentication provider's EntityID
+3. The upstream authentication provider's Entity ID
 
 Once these parameters have been [URL encoded](https://www.samltool.com/url.php), they will be [query parameters](https://developer.mozilla.org/en-US/docs/Web/URI/Reference/Query) for the `HTTP-Redirect` binding URL for the Proxy. 
 
