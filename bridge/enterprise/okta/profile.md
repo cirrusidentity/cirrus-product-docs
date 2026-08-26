@@ -56,7 +56,7 @@ To do this, in Attribute Statements add the following attribute:
 
 - **Name**: session.amr 
 - **Format**: Unspecified
-- **Value**: Do not enter. Leave this field blank.
+- **Value**: session.amr
 
 :::note
 Okta may be configured to only release **session.amr** as a single value.
