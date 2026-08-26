@@ -52,6 +52,10 @@ export default defineConfig({
               pages: ["bridge/standalone/*"],
             },
             {
+              group: "Application Integrations",
+              pages: ["proxy/integrations/cas/*", "proxy/integrations/saml/*"],
+            },
+            {
               group: "Other Configuration",
               pages: ["bridge/other/*"],
             },
