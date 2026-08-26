@@ -17,14 +17,14 @@ To get access to Federation Manager, follow the **[Federation Manager Guide](htt
 
 For those organizations that have previously registered with InCommon, it is generally recommended that you update your IdP instead of registering a new one. Changing your Entity ID with InCommon can be very disruptive.
 
-### Cirrus Bridge Parameters for InCommon Registration
+### Cirrus Bridge Parameters For InCommon Registration
 
 Once the Cirrus Bridge instance is provisioned, Cirrus will provide parameters to register the identity provider with InCommon.
 
 |     |     |
 | --- | --- |
 | **Parameter** | **Description** |
-| EntityID | The unique ID for the identity provider. It must be in your domain. |
+| Entity ID | The unique ID for the identity provider. It must be in your domain. |
 | Attribute Scope | Generally the root domain for the organization. |
 | SAML SSO Binding Endpoint | The Bridge supports both HTTP-Redirect and HTTP-POST for performing SSO. |
 | SAML SLO Binding Endpoint | The Bridge supports advertising a single-logout endpoint, but SLO must also be configured between the source authentication provider and the Bridge. |
@@ -35,7 +35,7 @@ Once the Cirrus Bridge instance is provisioned, Cirrus will provide parameters t
 The default error URL provided by the Cirrus Bridge supports the basic functionality specified by [REFEDS](https://refeds.org/specifications/errorurl-v1).
 :::
 
-### Contact, Policy, and Branding
+### Contact, Policy, & Branding
 
 Before registering, the Site Administrator should also have the following information ready:
 
@@ -48,9 +48,9 @@ Before registering, the Site Administrator should also have the following inform
 | Information URL | https://www.example.edu | A link to provide information about the Identity Provider. Many organizations will use their primary website. |
 | Privacy URL | https://www.example.edu/privacy | A link to a privacy policy that covers the identities asserted by your organization. |
 | Logo | https://branding.example.edu/logo.png | An organizational logo hosted on a website & directly available from a URL (redirects are not supported by InCommon). Cirrus Bridge does not support hosting a logo. |
-| Assert R&S Support | Check Box | Cirrus recommends asserting R&S support. See [Declare R&S Support](https://spaces.at.internet2.edu/display/federation/Declare+R+and+S+support+for+an+identity+provider) for details. |
-| Assert SIRTFI Compliance | Check Box | The provder cannot be registered without SIRTFI compliance. See [Declare SIRTFI Compliance](https://spaces.at.internet2.edu/display/federation/Declare+Sirtfi+compliance) for details. |
-| Export Metadata | Check Box | Cirrus recommends exporting metadata to eduGAIN. See [Metadata Export Options](https://spaces.at.internet2.edu/display/federation/saml-metadata-export-options) for details. |
+| Assert R&S Support | N/A | Cirrus recommends asserting R&S support. See [Declare R&S Support](https://spaces.at.internet2.edu/display/federation/Declare+R+and+S+support+for+an+identity+provider) for details. |
+| Assert SIRTFI Compliance | N/A | The provder cannot be registered without SIRTFI compliance. See [Declare SIRTFI Compliance](https://spaces.at.internet2.edu/display/federation/Declare+Sirtfi+compliance) for details. |
+| Export Metadata | N/A | Cirrus recommends exporting metadata to eduGAIN. See [Metadata Export Options](https://spaces.at.internet2.edu/display/federation/saml-metadata-export-options) for details. |
 
 ## Registration Process
 
