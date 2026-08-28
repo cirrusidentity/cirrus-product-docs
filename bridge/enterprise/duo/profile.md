@@ -40,7 +40,7 @@ To meet the REFEDS research & scholarship entity category requirements used by I
 | Given Name (givenName) | urn:oid:2.5.4.42 | First Name |
 | Display Name (displayName) | urn:oid:2.16.840.1.113730.3.1.241 | Display Name |
 | Email address (mail) | urn:oid:0.9.2342.19200300.100.1.3 | Email Address |
-| eduPersonPrincipalName* | urn:oid:1.3.6.1.4.1.5923.1.1.1.6 | Username |
+| eduPersonPrincipalName | urn:oid:1.3.6.1.4.1.5923.1.1.1.6 | Username |
 
 :::tip
 For additional authentication profiles (Duo Applications), use the Entity ID(s) or entity category URL for those application(s) and **use the ACS URL from the default profile**.

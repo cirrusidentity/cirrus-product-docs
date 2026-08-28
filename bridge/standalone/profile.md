@@ -6,7 +6,7 @@ description: Integrate any SAML authentication provider.
 Standalone Bridge supports a single authentication profile, which is equivalent to an application integration in your SAML authentication provider.
 
 :::info Definition
-An authentication profile includes a NameID format and value, set of attributes, and signing & encryption settings. A typical implementation will include a default profile for SAML and one for CAS. Additional profiles can be created if required.
+An authentication profile includes a NameID format and value, set of attributes, and signing & encryption settings.
 :::
 
 ## Create SAML Application
@@ -34,11 +34,11 @@ To meet the REFEDS research & scholarship entity category requirements used by I
 | Given Name (givenName) | urn:oid:2.5.4.42 | First Name |
 | Display Name (displayName) | urn:oid:2.16.840.1.113730.3.1.241 | Display Name |
 | Email address (mail) | urn:oid:0.9.2342.19200300.100.1.3 | Email Address |
-| eduPersonPrincipalName* | urn:oid:1.3.6.1.4.1.5923.1.1.1.6 | Username |
+| eduPersonPrincipalName | urn:oid:1.3.6.1.4.1.5923.1.1.1.6 | Username |
 
 ### Asserting MFA
 
 For the REFEDS MFA context, your institution can assert that MFA is required for all users by sending a custom attribute:
 
-- **Name**: `cirrus.rule.authnContext`
-- **Value**: `https://refeds.org/profile/mfa`
+- **Name**: `mfaEnforced`
+- **Value**: `true`

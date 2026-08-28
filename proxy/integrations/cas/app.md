@@ -17,7 +17,7 @@ Use caution when modifying these patterns. Changes to CAS patterns are immediate
 2. Scroll to the “Applications” section. 
    You will be able to adjust your view to only your CAS applications.
 3. Use the “+ Add CAS Application” option under “Configuration”.
-   Each authentication profile will have its own Entity ID Suffix. There is no Entity ID Suffix for the default.
+   _Enterprise Bridge Only_: Each authentication profile will have its own Entity ID Suffix, except for the default.
 4. Enter the URL Pattern & Friendly Name.
    Once finished, save your configuration.
 :::

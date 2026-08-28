@@ -49,14 +49,8 @@ The Proxy will check that the scope asserted from an authentication provider mat
 
 This is enabled by default for these attributes: 
 
-- eduPersonPrincipalName
-- eduPersonScopedAffilitation
-
-### Ends-With Scope Checking
-
-In some scenarios, an application uses email address as its internal identifier; Proxy can perform scope checking on the email address. In some organizations, the user's email addresses may contain subdomains. "Example University" may have a scope of `example.edu` but email address domains like `org.example.edu`. 
-
-If enabled, this feature performs scope checking by ensuring the scope ends with the appropriate domain.
+- `urn:oid:1.3.6.1.4.1.5923.1.1.1.6` (eduPersonPrincipalName)
+- `urn:oid:1.3.6.1.4.1.5923.1.1.1.9` (eduPersonScopedAffilitation)
 
 ### Ignore Scope Checking
 
@@ -66,17 +60,4 @@ In this example, you would likely want to disable scope checking for that provid
 
 :::tip
 Because of this common issue, ignoring scope checking is enabled by default for Cirrus Gateway providers which provide email service for multiple domains.
-:::
-
-### Scope Rewrite
-
-Your use case may require you to re-write the scope of certain attributes. This feature has Proxy change scoped attributes in one of two ways:
-
-1. Change scope: A scoped value of student@example.edu will be changed to student@newscope.com.
-2. Change scope and de-scoped value: A scoped value of `user@example.edu` will be changed to `user+example.edu@newscope.com`. This is useful when you want to preserve the old scope in some fashion during the rewrite.
-
-The changed scope is configurable upon request.
-
-:::info
-This feature is disabled by default. If enabled, it can be applied to specific attributes, to specific scopes, or to a combination of the two.
 :::

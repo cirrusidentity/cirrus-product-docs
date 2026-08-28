@@ -3,7 +3,9 @@ title: CAS Protocol Enablement
 description: Configure authentication profiles for CAS.
 ---
 
-Each unique CAS authentication profile is equivalent to its own application in your SAML authentication provider.
+:::info Enterprise Bridge Only
+The instructions below **apply only to Enterprise Bridge**. Each unique CAS authentication profile is equivalent to its own application in your SAML authentication provider.
+:::
 
 ## Default Profile (Required)
 
