@@ -11,7 +11,7 @@ Proxy makes it easy to use multiple authentication providers — even multiple E
 
 ## Common Implementation Patterns
 
-Proxy can is flexible by design, and can be used in many different configurations.
+Proxy is flexible by design, and can be used in many different configurations.
 
 :::accordion{title="Same App Used By Workforce & Customers"}
 If you have an application that's used by both your employees and customers, but want to control the login experience and use separate environments for each.

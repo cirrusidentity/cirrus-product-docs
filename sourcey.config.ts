@@ -83,6 +83,18 @@ export default defineConfig({
         }),
       },
       {
+        tab: "Managed Identities",
+        slug: "managed-identities",
+        source: markdown({
+          groups: [
+            {
+              group: "Managed Identities Overview",
+              pages: ["managed-identities/overview/*"],
+            },
+          ],
+        }),
+      },
+      {
         tab: "Identities API Reference",
         slug: "identities-api",
         source: openapi("./identity.json"),
