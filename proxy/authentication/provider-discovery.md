@@ -11,8 +11,8 @@ Cirrus Discovery is integrated with InCommon and other federations from eduGAIN,
 
 ## Planning Your Discovery Deployment
 
-:::tip
-A member of your organization needs to have access to the Cirrus Console and be granted the "Organization Administrator" role for your organization to configure Discovery.
+:::tip Reminder
+A member of your organization must have access to the Cirrus Console to configure Discovery.
 :::
 
 ### Determine Proxy's Audience

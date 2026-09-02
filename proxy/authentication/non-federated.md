@@ -7,13 +7,12 @@ description: Using non-federated authentication providers with Proxy.
 
 A non-federated authentication provider is one which cannot be integrated using metadata from a [supported Cirrus federation](./federated.md). 
 
-These providers are normally:
+These providers are typically organizations that are not eligible or otherwise able to participate in a supported federation, such as:
 
-- A higher education institution which does not participate in its national federation
 - Healthcare organizations attached to a higher education network
 - Partner state agencies
 - Customers of educational technology companies
-- Research partner institutions
+- Certain research partner institutions
 
 ### Integrating A Non-Federated Provider
 

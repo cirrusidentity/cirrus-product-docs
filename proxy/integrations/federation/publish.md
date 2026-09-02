@@ -1,6 +1,6 @@
 ---
-title: Federating Connected Applications
-description: Registering Proxy with a federation.
+title: Register Proxy With InCommon
+description: How to register your Cirrus Proxy with the federation.
 ---
 
 ## Requirements

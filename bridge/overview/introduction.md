@@ -9,6 +9,6 @@ Cirrus Bridge makes it easy to use your modern authentication provider, like Ent
 
 ## Types of Bridges
 
-**Enterprise Bridge**: If your primary identity provider is Entra ID, Okta, or Duo SSO, this provides greater control over configuration, including what attributes are released to the Bridge for different applications.
+**Enterprise Bridge**: If your primary authentication provider is Entra ID, Okta, or Duo SSO, this provides greater control over configuration, managing security controls in a central, authoritative source via an API integration with that provider.
 
-**Standalone Bridge**: Available with any SAML-based identity provider that can generate metadata, such as Google, Ping, or RapidSSO. It does not require that you grant API access, but attribute release configuration on a per-app basis is not self-service.
+**Standalone Bridge**: Available with any SAML-based identity provider that can generate metadata, such as Google, Ping, or RapidSSO. It does not require that you grant API access. However, it does require application behavior configuration be done using Cirrus Console.

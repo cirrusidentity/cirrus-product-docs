@@ -3,7 +3,7 @@ title: CAS Applications
 description: Add or edit CAS app configuration for Bridge & Proxy.
 ---
 
-CAS application patterns may be entered directly as a URL or as a regular expression. Regular expressions are preferred for organizations with many CAS applications, because they allow you to map many service URLs to a single pattern.
+CAS application patterns may be entered directly as a URL or as a regular expression. [Regular expressions](https://infoguides.gmu.edu/data-work/regex) are preferred for organizations with many CAS applications, because they allow you to map many service URLs to a single pattern.
 
 :::warning
 Use caution when modifying these patterns. Changes to CAS patterns are immediately applied to the tenant & can be disruptive. We recommend saving a copy of your CAS configuration before making any changes.

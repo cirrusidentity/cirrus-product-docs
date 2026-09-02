@@ -10,7 +10,7 @@ SAML Applications are configured using metadata, which is provided by the applic
 Each SAML application is managed independently. Changes affect only that specific integration, and determine how authentication is processed for the associated application.
 
 :::warning
-Use caution when modifying metadata. Changes are immediately applied to the tenant & may disrupt authentication if configuration is incorrect. We recommend saving a copy of existing metadata before making changes.
+Use caution when modifying metadata. Updates to metadata are applied to the tenant as soon as possible & may disrupt authentication if configured incorrectly. We recommend saving a copy of existing metadata before making changes.
 :::
 
 ## Add SAML Application To Bridge Or Proxy
