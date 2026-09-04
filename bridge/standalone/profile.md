@@ -14,7 +14,7 @@ An authentication profile includes a NameID format and value, set of attributes,
 :::steps
 1. Launch the admin UI for your primary authentication provider.
    Create a new SAML Application called "Cirrus Default Bridge".
-2. Export the SAML metadata from that application.
+2. Export the SAML metadata from that application via URL (preferred) or file.
    This metadata will be provided to your implementation lead.
 :::
 
