@@ -88,8 +88,12 @@ export default defineConfig({
         source: markdown({
           groups: [
             {
-              group: "Managed Identities Overview",
+              group: "Overview",
               pages: ["managed-identities/overview/*"],
+            },
+            {
+              group: "Identities",
+              pages: ["managed-identities/identity/*"],
             },
           ],
         }),
