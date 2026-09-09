@@ -99,6 +99,10 @@ export default defineConfig({
               group: "Credentials",
               pages: ["managed-identities/credential/*"],
             },
+            {
+              group: "Attribute Collections",
+              pages: ["managed-identities/attribute-collections/*"],
+            },
           ],
         }),
       },

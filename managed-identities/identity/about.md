@@ -3,7 +3,7 @@ title: Identity
 description: What is an identity record?
 ---
 
-Within Managed Identities, an identity is a parent record which contains a set of credentials linked to it along with a set of associated attribute collections.
+An identity is a parent record which contains a set of credentials linked to it along with a set of associated attribute collections.
 
 An identity should represent a single (real) person. A person might have several credentials (an institutional credential, OrgBrandedID, Google). They might also have several attribute collections tied to different attribute authorities.
 
