@@ -103,6 +103,10 @@ export default defineConfig({
               group: "Attribute Collections",
               pages: ["managed-identities/attribute-collections/*"],
             },
+            {
+              group: "Administration",
+              pages: ["managed-identities/administration/*"],
+            },
           ],
         }),
       },
