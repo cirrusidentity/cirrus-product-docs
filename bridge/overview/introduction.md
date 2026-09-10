@@ -15,7 +15,7 @@ Cirrus Bridge makes it easy to use your modern authentication provider, like Ent
 
 ## DNS Add-On: The Trust Triad
 
-The DNS Add-On for Cirrus Bridge supports migrating authentication from an existing SAML or CAS deployment (such as Shibboleth, simpleSAMLphp, Apereo CAS, Ping, Gluu, Fischer, NetIQ, or Ellucian EIS/Ethos) to the Cirrus Bridge without changes to the configured applications (including federated apps).
+The DNS Add-On for Cirrus Bridge supports migrating authentication from an existing SAML or CAS deployment (such as Shibboleth or Apereo CAS) to the Cirrus Bridge without changes to the configured applications (including federated apps).
 
 :::steps
 1. TLS Handshake (Public Web Certificate)
@@ -24,6 +24,10 @@ The DNS Add-On for Cirrus Bridge supports migrating authentication from an exist
    The Bridge acts as a service provider to your enterprise authentication provider. When the authentication provider sends a "Login Success" package, it signs it. The Bridge uses this certificate to verify the package hasn't been tampered with before processing it.
 3. Legacy Signing (SAML Signing Certificate: Private Key)
    You export the private signing key from your retiring IdP (e.g. Shibboleth) and upload it to the Bridge. When the Bridge sends the final package to the integrated application, it signs it with this key. The application sees the same URL (via DNS) and the same signature (via this key), so it accepts the login without needing any updates.
+:::
+
+:::tip
+In the case of TLS, Cirrus takes over the management of the TLS certificate for your Bridge's CNAME. We ask you to perform domain validation so that our infrastructure in AWS can issue the certificate and automatically manage renewal.
 :::
 
 ## Authentication Flow Diagram
