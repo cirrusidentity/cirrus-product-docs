@@ -111,6 +111,18 @@ export default defineConfig({
         }),
       },
       {
+        tab: "Guides",
+        slug: "guides",
+        source: markdown({
+          groups: [
+            {
+              group: "Applicant Access Solution",
+              pages: ["guides/slate/*"],
+            },
+          ],
+        }),
+      },
+      {
         tab: "Identities API Reference",
         slug: "identities-api",
         source: openapi("./identity.json"),
