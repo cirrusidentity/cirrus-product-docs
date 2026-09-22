@@ -1,9 +1,19 @@
 ---
 title: Trusting Authentication Providers
-description: Setting up Slate to trust Proxy.
+description: Setting up trust between Proxy, Providers, & Slate.
 ---
 
 Integrating authentication providers is a core component of Proxy setup. This process involves configuring both the applicant system (Slate) and the campus authentication provider to communicate effectively with Proxy.
+
+## InCommon Authentication Provider Integration
+
+When integrating with a campus authentication provider (such as Entra ID, Okta, or Duo) via InCommon, trust must be established between the Proxy and the customer’s authentication provider.
+
+### Establishing Trust
+
+The authentication provider usually will not automatically have access to the Proxy metadata. Customer Success will provide the Proxy (SP) metadata to the you.
+
+You will need to configure an application in your authentication provider to release to the Proxy all the attributes that are required for all your downstream applications; this list of attributes should be the result of your attribute mapping exercise.
 
 ## Slate Configuration
 
@@ -15,14 +25,8 @@ Slate administrators are sometimes unfamiliar with configuring Slate as an authe
 - **Service CAS Use ID**: The value assigned here will be passed as `cas:user` in the assertion from Slate to the Slate Proxy Connector. This is often critical for downstream application authorization.
 - **Service CAS Attributes**: These are the attributes passed from Slate to the Slate Proxy Connector. It is best to align these with the requirements identified during the attribute mapping exercise.
 
-## Incommon Authentication Provider Integration
+### A Note On Slate Dashboards
 
-When integrating with a campus authentication provider (such as Entra ID, Okta, or Duo) via InCommon, trust must be established between the Proxy and the customer’s authentication provider.
+You may want your applicants to access applications from a Slate dashboard. _Only SAML applications can be accessed this way._ 
 
-### Establishing Trust
-
-The authentication provider usually will not automatically have access to the Proxy metadata. Customer Success will provide the Proxy (SP) metadata to the customer.
-
-:::note
-If your campus authentication provider uses a Cirrus Bridge registered in InCommon, the Proxy must be added as a bilaterally integrated SAML application to the Bridge. Customer Sucess will assist with this.
-:::
+To do so, you can [create a bypass link](../../proxy/authentication/provider-other.md) for what's called "IdP-initiated" access.
