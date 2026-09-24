@@ -42,7 +42,7 @@ However, if your institution’s security policies require assignment, then sett
 :::
 
 :::tip
-For additional authentication profiles (Enterprise Applications), use the Entity ID(s) or entity category URL for those application(s) and **use the ACS URL from the default profile**.
+For additional authentication profiles (Enterprise Applications), use the Entity IDs for those applications, but **use the ACS URL from the default profile**.
 :::
 
 ## Configure Attribute Release
@@ -93,6 +93,29 @@ Our recommendation for the default application is to only sign the response. Thi
 
 ### Encryption (Optional)
 
-Customers moving from Shibboleth likely have a default policy to encrypt all assertions. 
+If you are migrating from Shibboleth, you likely have a default policy to encrypt all assertions. 
 
 To enable this, navigate to the “Token Encryption” menu, import the certificate for the Cirrus Bridge, and then activate the certificate. It can take several minutes for Entra ID to start encrypting assertions.
+
+## Entra ID Specific Guidance
+
+When retiring a legacy Shibboleth server, you might choose to do some application "housecleaning". For example, reviewing usage logs often uncovers applications that are no longer in use.
+
+Moving SAML applications from Shibboleth to the Cirrus Bridge provides an opportunity to simplify your environment.
+
+### Enterprise Application Configuration Tip
+
+In Entra ID, a single Enterprise Application can support multiple SAML applications when they have similar requirements.
+For example, some customers configure the default Authentication Profile (mentioned above) with commonly used, non-sensitive directory attributes and use it for SSO to many downstream applications. An application can successfully authenticate as long as the assertion contains the attributes it requires; attributes it doesn't need are typically ignored.
+
+You don't necessarily need an Entra ID Enterprise Application for _every_ downstream application. Where applications have the same requirements, they can share an Enterprise Application.
+
+Create a separate Enterprise Application when an application has a requirement that is different from the shared configuration, such as:
+
+- Attributes: It requires attributes that should not be released to other applications, particularly sensitive attributes.
+- NameID: It requires a different NameID format.
+- Assertion Security: It requires encrypted assertions or a different signing configuration.
+- User Access: It should only be available to specific users or groups.
+- MFA: It has different MFA requirements.
+
+For example, your default Cirrus Bridge Enterprise Application might support dozens of SAML applications that use the same non-sensitive attributes, NameID, and signing configuration. A separate Enterprise Application could support a smaller group of applications that require a sensitive attribute, without making that attribute available to all of the other applications.
