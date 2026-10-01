@@ -116,19 +116,23 @@ export default defineConfig({
         source: markdown({
           groups: [
             {
-              group: "Applicant Access Solution",
+              group: "Applicant Access",
               pages: ["guides/slate/*"],
+            },
+            {
+              group: "Custom UI Content",
+              pages: ["guides/idworkflow/*"],
             },
           ],
         }),
       },
       {
-        tab: "Identities API Reference",
+        tab: "Identities API",
         slug: "identities-api",
         source: openapi("./identity.json"),
       },
       {
-        tab: "Log API Reference",
+        tab: "Log API",
         slug: "log-api",
         source: openapi("./log.json"),
       },
