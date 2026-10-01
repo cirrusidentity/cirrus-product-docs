@@ -1,6 +1,6 @@
 ---
 title: Administrative Access
-description: Delegating access for the IDAdmin.
+description: Delegating access for IDAdmin.
 ---
 
 After your institution has been onboarded to IDAdmin and the first Organizational Manager has been authorized, Organizational Managers are responsible for managing administrative access on behalf of their organization.
@@ -29,7 +29,7 @@ Organizational Managers cannot revoke their own Organizational Manager status.
    Make sure to use your Organizational Manager credentials.
 2. Select your organization.
    Use the organization selector at the top to choose the organization you want to manage.
-3. Open Admins, under Security.
+3. Expand "Security".
    From the left navigation menu, select Admins. This page displays your organization’s administrative users.
 4. Add new admin.
    Under the User Admins section, click Add.
