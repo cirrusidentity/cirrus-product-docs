@@ -10,7 +10,7 @@ export default defineConfig({
       dark: "#106ebc",
     },
     fonts: {
-      sans: "Figtree",
+      sans: "Inter",
     },
   },
   logo: {
