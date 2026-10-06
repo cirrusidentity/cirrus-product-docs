@@ -35,13 +35,11 @@ Gateway currently supports the following public providers:
 - Microsoft
 - ORCID
 
-### Getting Started With Gateway
-
 :::tip Before You Begin
 You'll need to be an Org Admin within the Cirrus Console and have access to a registered developer account for each public provider to complete this integration.
 :::
 
-#### Establish Shared API Key
+### Establish Shared API Key
 
 For each provider, the following general steps will be required:
 
@@ -57,7 +55,7 @@ For each provider, the following general steps will be required:
 5. Set the Redirect URI provided in the Cirrus Console Shared API Key configuration.
 :::
  
-#### Connect Your Proxy Tenant With Gateway
+### Connect Your Proxy Tenant With Gateway
 
 :::steps
 1. Navigate to the relevant Cirrus Proxy tenant configuration.
