@@ -3,8 +3,6 @@ title: Other Providers
 description: Using non-federated authentication providers with Proxy.
 ---
 
-## What Are Other Providers?
-
 A non-federated authentication provider is one which cannot be integrated using metadata from a [supported Cirrus federation](./federated.md). 
 
 These providers can be organizations that are not eligible or otherwise able to participate in a supported federation, such as:
@@ -16,13 +14,13 @@ These providers can be organizations that are not eligible or otherwise able to 
 
 Alternatively, these can be providers from a Cirrus Gateway. Gateway enables support for public authentication providers like Apple, Google, Microsoft, and LinkedIn.
 
-### Integrating Other Providers With Proxy Connectors
+## Integrating Other Providers With Proxy Connectors
 
 To integrate a non-federated private organizational provider, you must purchase a Proxy Connector. Each Connector supports a single integration with an authentication provider using the SAML protocol.
 
 Please [contact Cirrus Customer Success](https://www.cirrusidentity.com/resources/support-center) for help setting up a Proxy Connector.
 
-### Integrating Other Providers With Cirrus Gateway
+## Integrating Other Providers With Cirrus Gateway
 
 Applications sometimes provide a way to enable sign-in from public authentication providers. These solutions tend to only work with a single application, but users rarely use a single application in an organization.
 
@@ -37,13 +35,13 @@ Gateway currently supports the following public providers:
 - Microsoft
 - ORCID
 
-#### Getting Started With Gateway
+### Getting Started With Gateway
 
 :::tip Before You Begin
 You'll need to be an Org Admin within the Cirrus Console and have access to a registered developer account for each public provider to complete this integration.
 :::
 
-##### Establish Shared API Key
+#### Establish Shared API Key
 
 For each provider, the following general steps will be required:
 
@@ -59,7 +57,7 @@ For each provider, the following general steps will be required:
 5. Set the Redirect URI provided in the Cirrus Console Shared API Key configuration.
 :::
  
-##### Connect Your Proxy Tenant With Gateway
+#### Connect Your Proxy Tenant With Gateway
 
 :::steps
 1. Navigate to the relevant Cirrus Proxy tenant configuration.
