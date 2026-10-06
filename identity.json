@@ -1383,6 +1383,100 @@
           }
         }
       }
+    },
+    "/obids/{cirrusUid}/sendCredentialEmail/{cuid}": {
+      "post": {
+        "tags": [
+          "Obid"
+        ],
+        "summary": "Send  Obid  Credential  Email",
+        "description": "Send a credential email for the OBID account `cuid` associated with identity `cirrusUid`. If the OBID account is in\neither the `BOOTSTRAP` or `INACTIVE` state, the \"account activation\" email will be sent. Otherwise, the \"password\nreset\" email will be sent.",
+        "operationId": "send_obid_credential_email_obids__cirrusUid__sendCredentialEmail__cuid__post",
+        "security": [
+          {
+            "HTTPBasic": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "cirrusUid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "`cirrusUid` of identity record",
+              "title": "Cirrusuid"
+            },
+            "description": "`cirrusUid` of identity record"
+          },
+          {
+            "name": "cuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "identifier of OBID account (begins with `cuid-`)",
+              "title": "Cuid"
+            },
+            "description": "identifier of OBID account (begins with `cuid-`)"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "not authorized"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "record not found"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "OBID account 645aab71-bdfd-4b36-98c0-e9d531731f1c is in SUSPENDED status and can't be reset"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "database error: ..."
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
