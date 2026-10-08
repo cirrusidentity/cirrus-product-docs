@@ -123,6 +123,10 @@ export default defineConfig({
               group: "Custom UI Content",
               pages: ["guides/idworkflow/*"],
             },
+            {
+              group: "Log Export & API",
+              pages: ["guides/logs/*"],
+            },
           ],
         }),
       },
