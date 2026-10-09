@@ -28,7 +28,7 @@ If you would like a guided implementation with one of our technical implementati
 - **422**: Validation error, likely a malformed request
 - **500**: Server-side error on a Cirrus product
 
-## Other Definitions
+### Other Definitions
 
 - `timeStampISO`: Time of the event
 - `sp`: Service provider (application) generating the request
@@ -37,4 +37,21 @@ If you would like a guided implementation with one of our technical implementati
  
 :::note Can I go back to a point in time?  
 The initial starting point for requesting API data will be the nextToken you receive after making your first API GET request. You cannot pick a point in the past before you started using the API to poll log data.
+:::
+
+## Create An API Credential
+
+:::info
+After you create the credential, it may take up to 15 minutes before it can be used.
+:::
+
+:::steps
+1. Sign in to the [Cirrus Console](https://apps.cirrusidentity.com/console/auth/index).
+   Once signed in, select your organization from the list under “My Organizations”.
+2. Select the “Cirrus API Access” menu item.
+   Depending on your subscription, you may see more than one API listed. Select the "Log API" option.
+3. Choose “New Credential”.
+   The description you enter will appear in the UI so that you can identify the credential.
+4. Click "Create" and securely store your credential.
+   After creation, you will not be able to access the secret. Save it somewhere safe!
 :::
