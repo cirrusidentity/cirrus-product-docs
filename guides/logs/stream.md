@@ -13,7 +13,7 @@ The [Log API reference](../../log-api.html) provides detailed information on the
 You may keep querying until the `nextToken` value in the response is the same as what you supplied in the request. At that point, we recommend a 5-minute wait before the next API call.
 :::
 
-If you would like a guided implementation with one of our technical implementation leads, contact us at support@cirrusidentity.com.
+If you would like a guided implementation with one of our customer implementation leads, contact us at support@cirrusidentity.com.
  
 ## Query Parameters
 

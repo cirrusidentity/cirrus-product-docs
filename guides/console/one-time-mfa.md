@@ -35,7 +35,7 @@ To use a custom "From" address for your institution, set up an email handler by 
 
 ### Schedule Your Go-Live
 
-One-Time Code MFA goes live as soon as our team completes the configuration. Send your collected details to your **Technical Implementation Lead**, and they will work with you to coordinate a scheduled go-live window.
+One-Time Code MFA goes live as soon as our team completes the configuration. Send your collected details to your **Customer Implementation Lead**, and they will work with you to coordinate a scheduled go-live window.
 
 ## Verification & Testing
 
