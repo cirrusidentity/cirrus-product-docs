@@ -124,6 +124,10 @@ export default defineConfig({
               pages: ["guides/idworkflow/*"],
             },
             {
+              group: "Cirrus Console",
+              pages: ["guides/console/*"],
+            },
+            {
               group: "Log Export & API",
               pages: ["guides/logs/*"],
             },

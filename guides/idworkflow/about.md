@@ -1,5 +1,5 @@
 ---
-title: Getting Started With IDWorkflow
+title: About IDWorkflow
 description: Using IDWorkflow & Cirrus Proxy to present custom content.
 ---
 
