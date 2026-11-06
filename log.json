@@ -5,11 +5,6 @@
     "description": "\nAll endpoints require HTTP Basic authentication using\n[Cirrus Identity Log API credentials](https://blog.cirrusidentity.com/documentation/log-api-credentials),\nprovisioned in the Cirrus Console. \n\n## `/logs/v1/orgUrls`\n\nReturns a list of permitted `orgUrls` for the provided credentials.\n\n## `/logs/v1/orgLogs`\n\nReturns logs for a specific `orgUrl` value. Expand the `/orgLogs` endpoint (below)\nfor details on parameters and schema.\n",
     "version": "1.0.3"
   },
-  "servers": [
-    {
-      "url": "/logs/v1"
-    }
-  ],
   "paths": {
     "/orgLogs": {
       "get": {
@@ -33,6 +28,7 @@
               "type": "string",
               "format": "uri",
               "minLength": 1,
+              "maxLength": 2083,
               "title": "Orgurl"
             }
           },
@@ -270,6 +266,7 @@
           },
           "logEvents": {
             "items": {
+              "additionalProperties": true,
               "type": "object"
             },
             "type": "array",
@@ -366,6 +363,13 @@
           "type": {
             "type": "string",
             "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
           }
         },
         "type": "object",
@@ -383,5 +387,10 @@
         "scheme": "basic"
       }
     }
-  }
+  },
+  "servers": [
+    {
+      "url": "/logs/v1"
+    }
+  ]
 }
