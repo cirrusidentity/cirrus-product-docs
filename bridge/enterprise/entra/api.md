@@ -25,7 +25,7 @@ You must be a **Global Administrator** in Entra ID for this step. **$TENANT_ID**
 :::
 
 :::code-group
-``` title="Consent URL"
+```ts title="Consent URL"
 https://login.microsoftonline.com/$TENANT_ID/adminconsent?client_id=ea71bc49-6159-422d-84d5-6c29d7287974&state=12345&redirect_uri=https://admin.cirrusidentity.com/azure-registration
 ```
 :::

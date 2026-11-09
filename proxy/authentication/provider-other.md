@@ -20,7 +20,7 @@ Once these parameters have been [URL encoded](https://www.samltool.com/url.php),
 Final construction will look like this:
 
 :::code-group
-``` title="Constructed URL Example"
+```ts title="Constructed URL Example"
 $bindingUrl?spentityid=$SPEntityID&RelayState=$RelayState&IDPList=$IdpEntityID
 ```
 :::
