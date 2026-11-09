@@ -28,7 +28,7 @@ $bindingUrl?spentityid=$SPEntityID&RelayState=$RelayState&IDPList=$IdpEntityID
 Sending a user to the below example will tell a Cirrus proxy to use Google as the upstream authentication provider and return the user to a Cirrus test application which will display some attributes.
 
 :::code-group
-``` title="Live Constructed URL"
+```ts title="Live Constructed URL"
 https://support.proxy.cirrusidentity.com/saml2/idp/SSOService.php?spentityid=https%3A%2F%2Fstandard.monitor.cirrusidentity.com&RelayState=%2Fmodule.php%2Fcore%2Fauthenticate.php%3Fas%3Dmonitor-standard&IDPList=https%3A%2F%2Fgoogle.cirrusidentity.com%2Fgateway
 ```
 :::

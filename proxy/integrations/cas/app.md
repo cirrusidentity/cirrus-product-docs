@@ -33,7 +33,7 @@ Cirrus provides a debug endpoint that you can use to verify that CAS service URL
 You will need to [encode the service URL](https://www.samltool.com/url.php) and replace `https://someservice.edu` with the encoded URL. For example, if the service URL is `https://apps.campus.edu`, then your test URL for a Bridge will be:
 
 :::code-group
-``` title="Test URL"
+```ts title="Test URL"
 https://$TENANT.bridge.cirrusidentity.com/cas/login?debugMode=true&service=https%3A%2F%2Fapps.campus.edu
 ```
 :::
