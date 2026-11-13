@@ -21,7 +21,7 @@ Use caution when modifying metadata. Updates to metadata are applied to the tena
 2. Scroll to the “Applications” section. 
    You will be able to adjust your view to only your SAML applications.
 3. Use the “+ Add SAML Application” option under “Configuration”.
-   Select the appropriate metadata source (Remote or Managed by Cirrus).
+   Select the appropriate metadata source (R&E Trust Federation, Application-Provided URL, or Manual Upload).
 4. Provide the required metadata.
    Once finished, save your configuration.
 :::
