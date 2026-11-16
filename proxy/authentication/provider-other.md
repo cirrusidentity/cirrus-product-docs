@@ -5,7 +5,11 @@ description: Adjust Proxy behavior for specific scenarios.
 
 ## Discovery Bypass
 
-In some situations, your application may already know the upstream authentication provider that Proxy should use, and you want the user to bypass the discovery screen. 
+In some situations, your application may already know the upstream authentication provider that Proxy should use, and you want the user to bypass the discovery screen using a pre-constructed URL.
+
+:::tip
+Publishers of academic journals & OpenAthens sometimes refer to these as "WAYF-less links". Use the RelayState parameter with a value for the intended "deep link" destination.
+:::
 
 To do so, we will construct a URL for the Proxy that contains the following information:
 
