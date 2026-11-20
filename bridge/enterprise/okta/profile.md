@@ -48,6 +48,15 @@ To meet the REFEDS research & scholarship entity category requirements used by I
 For additional authentication profiles (Okta Applications), use the Entity ID(s) or entity category URL for those application(s) and **use the ACS URL from the default profile**.
 :::
 
+### Example Entity IDs For Additional Profiles
+
+| Application | Identifier URI/Entity ID | Description |
+| --- | --- | --- |
+| Research and Scholarship | `http://refeds.org/category/research-and-scholarship` | Used if you want Research and Scholarship applications to have different attribute release from your default. |
+| Entity Categories | The entity category for the SP(s) | Use the entity category for the SP(s) and the Cirrus Bridge will automatically use that profile when it receives an authentication request from a SP with that entity category. |
+| Specific SP | The SP’s entityID | Use the SP’s entityID and the Cirrus Bridge will automatically use that profile when it receives an authentication request from that SP. |
+| Groups of SPs with common requirements (Entra ID only) | The SP entityIDs | Entra ID allows you to add multiple URIs/EntityIDs to a single Entra ID application. Cirrus will automatically use the application for all entityIDs added to it. |
+
 ### Asserting REFEDS MFA Profile
 
 Okta can signal to the Cirrus Bridge that MFA was used if you release the **session.amr** attribute to Cirrus. 

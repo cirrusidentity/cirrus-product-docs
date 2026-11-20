@@ -70,6 +70,15 @@ To meet the REFEDS research & scholarship entity category requirements used by I
 | Email address (mail) | urn:oid:0.9.2342.19200300.100.1.3 | user.mail |
 | eduPersonPrincipalName | urn:oid:1.3.6.1.4.1.5923.1.1.1.6 | user.userprincipalname |
 
+### Example Entity IDs For Additional Profiles
+
+| Application | Identifier URI/Entity ID | Description |
+| --- | --- | --- |
+| Research and Scholarship | `http://refeds.org/category/research-and-scholarship` | Used if you want Research and Scholarship applications to have different attribute release from your default. |
+| Entity Categories | The entity category for the SP(s) | Use the entity category for the SP(s) and the Cirrus Bridge will automatically use that profile when it receives an authentication request from a SP with that entity category. |
+| Specific SP | The SP’s entityID | Use the SP’s entityID and the Cirrus Bridge will automatically use that profile when it receives an authentication request from that SP. |
+| Groups of SPs with common requirements (Entra ID only) | The SP entityIDs | Entra ID allows you to add multiple URIs/EntityIDs to a single Entra ID application. Cirrus will automatically use the application for all entityIDs added to it. |
+
 ### Asserting MFA
 
 If you are using Entra ID MFA, then the Cirrus Bridge will automatically assert the REFEDS MFA authncontext to downstream service providers.
