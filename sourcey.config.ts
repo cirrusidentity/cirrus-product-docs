@@ -120,6 +120,10 @@ export default defineConfig({
               pages: ["guides/slate/*"],
             },
             {
+              group: "REFEDS Assurance",
+              pages: ["guides/refeds/assurance"],
+            },
+            {
               group: "Custom UI Content",
               pages: ["guides/idworkflow/*"],
             },

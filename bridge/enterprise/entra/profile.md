@@ -121,10 +121,9 @@ You don't necessarily need an Entra ID Enterprise Application for _every_ downst
 
 Create a separate Enterprise Application when an application has a requirement that is different from the shared configuration, such as:
 
-- Attributes: It requires attributes that should not be released to other applications, particularly sensitive attributes.
-- NameID: It requires a different NameID format.
-- Assertion Security: It requires encrypted assertions or a different signing configuration.
-- User Access: It should only be available to specific users or groups.
-- MFA: It has different MFA requirements.
+- **Attributes**: It requires attributes that should not be released to other applications, particularly sensitive attributes.
+- **NameID**: It requires a different NameID format.
+- **Assertion Security**: It requires encrypted assertions or a different signing configuration.
+- **User Access**: It should only be available to specific users or groups.
 
 For example, your default Cirrus Bridge Enterprise Application might support dozens of SAML applications that use the same non-sensitive attributes, NameID, and signing configuration. A separate Enterprise Application could support a smaller group of applications that require a sensitive attribute, without making that attribute available to all of the other applications.
